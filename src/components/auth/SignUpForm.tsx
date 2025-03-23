@@ -33,15 +33,15 @@ export default function SignUpForm() {
     first_name: "",
     last_name: "",
     position: "",
-    role: "admin",
+    role: "user",
     department: "",
     password: "",
     profile_image: "",
   })
   const profile = "https://static.vecteezy.com/system/resources/thumbnails/048/926/084/small_2x/silver-membership-icon-default-avatar-profile-icon-membership-icon-social-media-user-image-illustration-vector.jpg";
   const roles: Role[] = [
-    { id: 'admin', label: 'Admin' },
     { id: 'user', label: 'User' },
+    { id: 'admin', label: 'Admin' },
   ]
   const navigate = useNavigate()
 
@@ -55,7 +55,18 @@ export default function SignUpForm() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
+
+    if (!/^\d{5}$/.test(formData.user_id.toString())) {
+      Swal.fire({
+        title: "รหัสพนักงานไม่ถูกต้อง",
+        text: "กรุณากรอกรหัสพนักงาน 5 หลัก",
+        icon: "error",
+        confirmButtonColor: "#d33", 
+        confirmButtonText: "ตกลง",
+      })
+      return;
+    } 
     try {
       const userData = {
         ...formData,
