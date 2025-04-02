@@ -26,8 +26,9 @@ interface Role {
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
-  // const [isChecked, setIsChecked] = useState(false);
-  // const [role, setRole] = useState<string>('');
+  const [showCFPassword, setShowCFPassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("")
+
   const [formData, setFormdata] = useState<FormData>({
     user_id: 0,
     first_name: "",
@@ -47,15 +48,30 @@ export default function SignUpForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    console.log(name, value)
     setFormdata((prev) => ({
       ...prev,
       [name]: value,
     }))
   }
 
+  const checkPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfirmPassword(e.target.value);
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (formData.password !== confirmPassword) {
+      Swal.fire({
+        title: "รหัสผ่านไม่ตรงกัน",
+        text: "กรุณากรอกรหัสผ่านให้ตรงกัน",
+        icon: "error",
+        confirmButtonColor: "#d33",
+        confirmButtonText: "ตกลง",
+      })
+      return
+    }
+
 
     if (!/^\d{5}$/.test(formData.user_id.toString())) {
       Swal.fire({
@@ -65,16 +81,16 @@ export default function SignUpForm() {
         confirmButtonColor: "#d33", 
         confirmButtonText: "ตกลง",
       })
-      return;
+      return
     } 
     try {
       const userData = {
         ...formData,
         profile_image: profile// ใช้รูปโปรไฟล์เริ่มต้นถ้าไม่มีอัปโหลด
-      };
+      }
 
-      const response = await axios.post("http://localhost:8000/api/authen/register", userData);
-      console.log("Success:", response.data);
+      const response = await axios.post("http://localhost:8000/api/authen/register", userData)
+      console.log("Success:", response.data)
       if (response.data && response.data.newUser) {
         // If newUser exists, show success message
         Swal.fire({
@@ -86,22 +102,22 @@ export default function SignUpForm() {
         }).then((result) => {
           if (result.isConfirmed) {
             // If OK is clicked, navigate to /signin
-            navigate('/signin');
+            navigate('/signin')
           }
-        });
+        })
       }
       
     } catch (error) {
       if (axios.isAxiosError(error)) {
         // Now you can safely access response and message
-        const errorMessage = error.response?.data?.message || "กรุณาลองใหม่อีกครั้ง";
+        const errorMessage = error.response?.data?.message || "กรุณาลองใหม่อีกครั้ง"
         Swal.fire({
           title: "เกิดข้อผิดพลาด!",
           text: errorMessage,
           icon: "error",
           confirmButtonColor: "#d33",
           confirmButtonText: "ตกลง",
-        });
+        })
       } else {
         // Fallback if error is not an AxiosError
         Swal.fire({
@@ -110,10 +126,10 @@ export default function SignUpForm() {
           icon: "error",
           confirmButtonColor: "#d33",
           confirmButtonText: "ตกลง",
-        });
+        })
       }
     }
-  };
+  }
 
 
 
@@ -123,7 +139,7 @@ export default function SignUpForm() {
       <div className="w-full max-w-md ml-4 mb-5 sm:pt-4">
         <Link
           to="/"
-          className="inline-flex items-center text-sm p-3 rounded-full bg-[#009A3E] text-white transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            className="inline-flex items-center text-sm p-3 rounded-full bg-[#009A3E] text-white transition-colors hover:text-white dark:text-gray-400 dark:hover:text-gray-300 hover:bg-[#7FBA20]"
         >
           <ChevronLeftIcon className="size-5" />
           Back to Home
@@ -146,7 +162,7 @@ export default function SignUpForm() {
         <div className="mb-2 w-full mx-auto sm:mb-6">
 
           <p className=" mx-auto text-center font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-sm">
-            Sign Up
+            สมัครสมาชิก
           </p>
         </div>
         <div className="flex flex-col justify-center flex-1 w-full">
@@ -160,51 +176,51 @@ export default function SignUpForm() {
                       {/* <!-- First Name --> */}
                       <div className="sm:col-span-1">
                         <Label>
-                          First Name<span className="text-error-500">*</span>
+                          ชื่อ<span className="text-error-500">*</span>
                         </Label>
                         <Input
                           type="text"
                           id="first_name"
                           name="first_name"
                           onChange={handleChange}
-                          placeholder="Enter your first name"
+                          placeholder="กรุณาระบุชื่อ"
                         />
                       </div>
                       {/* <!-- Last Name --> */}
                       <div className="sm:col-span-1">
                         <Label>
-                          Last Name<span className="text-error-500">*</span>
+                          นามสกุล<span className="text-error-500">*</span>
                         </Label>
                         <Input
                           type="text"
                           id="last_name"
                           name="last_name"
                           onChange={handleChange}
-                          placeholder="Enter your last name"
+                          placeholder="กรุณาระบุนามสกุล"
                         />
                       </div>
                     </div>
                     {/* <!-- Exployee ID --> */}
                     <div>
                       <Label>
-                        Employee ID<span className="text-error-500">*</span>
+                        รหัสพนักงาน<span className="text-error-500">*</span>
                       </Label>
                       <Input
                         type="text"
                         id="user_id"
                         name="user_id"
                         onChange={handleChange}
-                        placeholder="Enter your Employyee ID"
+                        placeholder="กรุณาระบุรหัสพนักงาน"
                       />
                     </div>
                     {/* <!-- Password --> */}
                     <div>
                       <Label>
-                        Password<span className="text-error-500">*</span>
+                        รหัสผ่าน<span className="text-error-500">*</span>
                       </Label>
                       <div className="relative">
                         <Input
-                          placeholder="Enter your password"
+                          placeholder="กรุณาระบุรหัสผ่าน"
                           name="password"
                           onChange={handleChange}
                           type={showPassword ? "text" : "password"}
@@ -221,60 +237,77 @@ export default function SignUpForm() {
                         </span>
                       </div>
                     </div>
+                    {/* <!-- Confirm Password --> */}
+                    <div>
+                      <Label>
+                        ยืนยันรหัสผ่าน<span className="text-error-500">*</span>
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          onChange={checkPassword}
+                          placeholder="กรุณาระบุรหัสผ่าน"
+                          name= "confirm_password"
+                          type={showCFPassword ? "text" : "password"}
+                        />
+                        <span
+                          onClick={() => setShowCFPassword(!showCFPassword)}
+                          className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+                        >
+                          {showCFPassword ? (
+                            <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                          ) : (
+                            <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                          )}
+                        </span>
+                      </div>
+                    </div>
                     {/* <!-- Expolyee position--> */}
                     <div>
                       <Label>
-                        Position<span className="text-error-500">*</span>
+                        ตำแหน่งพนักงาน<span className="text-error-500">*</span>
                       </Label>
                       <Input
                         type="text"
                         id="position"
                         name="position"
                         onChange={handleChange}
-                        placeholder="Enter your Position"
+                        placeholder="กรุณาระบุตำแหน่งพนักงาน"
                       />
                     </div>
 
                     {/* <!-- Department --> */}
                     <div className="sm:col-span-1">
                       <Label>
-                        Department<span className="text-error-500">*</span>
+                        แผนกพนักงาน<span className="text-error-500">*</span>
                       </Label>
                       <Input
                         type="text"
                         id="department"
                         name="department"
                         onChange={handleChange}
-                        placeholder="Enter your Department"
+                        placeholder="กรุณาระบุแผนกของคุณ"
                       />
                     </div>
 
                     <fieldset className="fieldset">
                       <Label>
-                        Role<span className="text-error-500">*</span>
+                       ระดับผู้ใช้งาน<span className="text-error-500">*</span>
                       </Label>
-                      <select defaultValue="Pick a browser" name="role" onChange={handleChange} className="select ">
+                      <select defaultValue="กำหนดสิทธิ์ให้ผู้ใช้งาน" name="role" onChange={handleChange} className="select ">
                         {roles.map((role) => (
                           <option key={role.id} value={role.id}>{role.label}</option>
                         ))}
 
                       </select>
                     </fieldset>
-                    <img
-                      width={100}
-                      height={100}
-                      src={formData.profile_image || profile} // ถ้าไม่มี ให้ใช้ default
-                      alt="User Profile"
-                      className="rounded-full hidden"
-                    />
                   </div>
 
                 </div>
 
                 {/* <!-- Button --> */}
 
-                <button className="flex items-center justify-center mb-4 max-sm:w-[90%] max-lg:w-[50%] min-lg:w-[20%]  mx-auto px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
-                  Sign Up
+                <button className="flex items-center justify-center mb-4 max-sm:w-[90%] max-lg:w-[50%] min-lg:w-[20%]  mx-auto px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-[#009A3E] shadow-theme-xs hover:bg-[#7FBA20]">
+                  สมัครสมาชิก
                 </button>
               </div>
             </form>
@@ -285,5 +318,5 @@ export default function SignUpForm() {
       </div>
 
     </div>
-  );
+  )
 }

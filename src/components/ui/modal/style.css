@@ -1,0 +1,43 @@
+.modals {
+    pointer-events: none;
+    visibility: hidden;
+    position: fixed;
+    inset: calc(0.25rem /* 4px */ * 0) /* 0rem = 0px */;
+    margin: calc(0.25rem /* 4px */ * 0) /* 0rem = 0px */;
+    display: grid;
+    height: 100%;
+    max-height: none;
+    width: 100%;
+    max-width: none;
+    align-items: center;
+    justify-items: center;
+    background-color: transparent;
+    padding: calc(0.25rem /* 4px */ * 0) /* 0rem = 0px */;
+    color: inherit;
+    overflow-x: hidden;
+    transition: transform 0.3s ease-out, visibility 0.3s allow-discrete, background-color 0.3s ease-out, opacity 0.1s ease-out;
+    overflow-y: hidden;
+    overscroll-behavior: contain;
+    z-index: 999;
+    &::backdrop {
+        display: none;
+    }
+    &.modal-open, &[open], &:target {
+        background-color: oklch(0% 0 0/ 0.4);
+        transition: transform 0.3s ease-out, background-color 0.3s ease-out, opacity 0.1s ease-out;
+        pointer-events: auto;
+        visibility: visible;
+        opacity: 100%;
+        .modal-box {
+            translate: 0 0;
+            scale: 1;
+            opacity: 1;
+        }
+    }
+    @starting-style {
+        &.modal-open, &[open], &:target {
+            visibility: hidden;
+            opacity: 0%;
+        }
+    }
+}

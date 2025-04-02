@@ -41,7 +41,7 @@ const AppHeader: React.FC = () => {
   }, []);
 
   return (
-    <header className="sticky top-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
+    <header className="sticky top-0 flex w-full bg-white border-gray-200 z-100 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
       <div className="flex flex-col items-center justify-between grow lg:flex-row lg:px-6">
         <div className="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
           <button
@@ -84,16 +84,24 @@ const AppHeader: React.FC = () => {
           </button>
 
           <Link to="/" className="lg:hidden">
+          <div className="flex items-center justify-center gap-2">
             <img
-              className="dark:hidden"
-              src="./images/logo/logo.svg"
-              alt="Logo"
-            />
+                className="dark:hidden max-sm:w-[40px]"
+                src="/images/logo/company.png"
+                alt="Logo"
+                width={60}
+                height={40}
+              />
+              <div className="max-sm:text-xl text-3xl font-bold">Sincere</div>
+          </div>
+            
             <img
-              className="hidden dark:block"
-              src="./images/logo/logo-dark.svg"
-              alt="Logo"
-            />
+                className=" hidden dark:block"
+                src="/images/logo/company.png"
+                alt="Logo"
+                width={150}
+                height={40}
+              />
           </Link>
 
           <button
