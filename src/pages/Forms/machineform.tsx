@@ -11,7 +11,7 @@ import dayjs from 'dayjs'
 import './style.css'
 import 'dayjs/locale/th'
 interface Product_Type {
-    value: string | [],
+    value: string | string[],
     label: string,
 }
 
