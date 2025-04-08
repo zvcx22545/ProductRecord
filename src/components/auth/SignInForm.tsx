@@ -32,22 +32,15 @@ export default function SignInForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // if (!/^\d{5}$/.test(formData.user_id.toString())) {
-    //   Swal.fire({
-    //     title: "รหัสพนักงานไม่ถูกต้อง",
-    //     text: "กรุณากรอกรหัสพนักงาน 5 หลัก",
-    //     icon: "error",
-    //     confirmButtonColor: "#d33", 
-    //     confirmButtonText: "ตกลง",
-    //   })
-    //   return;
-    // } 
     try {
 
       const response = await axios.post("http://localhost:8000/api/authen/login", formData);
       console.log("Success:", response.data);
       if (response.data && response.data.status === true && response.data.token) {
-        
+
+        sessionStorage.setItem("token", response.data.token);
+        sessionStorage.setItem("expiresAt", response.data.expiresAt);
+        sessionStorage.setItem("user_id", response.data.userid);
         Swal.fire({
           title: " สำเร็จ!",
           text: "เข้าสู่ระบบสำเร็จ",
@@ -61,7 +54,7 @@ export default function SignInForm() {
           }
         });
       }
-      
+
     } catch (error) {
       if (axios.isAxiosError(error)) {
         // Now you can safely access response and message
@@ -88,7 +81,7 @@ export default function SignInForm() {
 
   return (
     <div className="flex flex-col flex-1">
-     <div className="w-full max-w-md ml-4 mb-5 sm:pt-4">
+      <div className="w-full max-w-md ml-4 mb-5 sm:pt-4">
         <Link
           to="/"
           className="inline-flex items-center text-sm p-3 rounded-full bg-[#009A3E] text-white transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
@@ -99,39 +92,39 @@ export default function SignInForm() {
       </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
-        <div className="mb-2 w-full mx-auto sm:mb-6">
+          <div className="mb-2 w-full mx-auto sm:mb-6">
 
-<p className=" mx-auto text-center font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-sm">
-  Sign In
-</p>
-</div>
+            <p className=" mx-auto text-center font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-sm">
+              Sign In
+            </p>
+          </div>
           <div>
             <form onSubmit={handleSubmit}>
               <div className="space-y-6">
-                    {/* <!-- Exployee ID --> */}
-                    <div>
-                      <Label>
-                        Employee ID<span className="text-error-500">*</span>
-                      </Label>
-                      <Input
-                        type="text"
-                        id="user_id"
-                        name="user_id"
-                        placeholder="Enter your Employyee ID"
-                        onChange={handleChange}
-                      />
-                    </div>
+                {/* <!-- Exployee ID --> */}
+                <div>
+                  <Label>
+                    Employee ID<span className="text-error-500">*</span>
+                  </Label>
+                  <Input
+                    type="text"
+                    id="user_id"
+                    name="user_id"
+                    placeholder="Enter your Employyee ID"
+                    onChange={handleChange}
+                  />
+                </div>
                 <div>
                   <Label>
                     Password <span className="text-error-500">*</span>{" "}
                   </Label>
                   <div className="relative">
-                  <Input
-                          placeholder="Enter your password"
-                          name="password"
-                          type={showPassword ? "text" : "password"}
-                          onChange={handleChange}
-                        />
+                    <Input
+                      placeholder="Enter your password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      onChange={handleChange}
+                    />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
@@ -159,9 +152,12 @@ export default function SignInForm() {
                   </Link>
                 </div>
                 <div>
-                  <Button className="w-full" size="sm">
-                    Sign in
-                  </Button>
+                  <button
+                    type='submit'
+                    className="text-center mb-4 max-sm:w-[90%] max-lg:w-[50%] min-lg:w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-[#009A3E] shadow-theme-xs hover:bg-[#7FBA20]"
+                  >
+                    เข้าสู่ระบบ
+                  </button>
                 </div>
               </div>
             </form>

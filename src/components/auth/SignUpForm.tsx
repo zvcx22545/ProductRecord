@@ -72,17 +72,43 @@ export default function SignUpForm() {
       return
     }
 
-
     if (!/^\d{5}$/.test(formData.user_id.toString())) {
       Swal.fire({
         title: "รหัสพนักงานไม่ถูกต้อง",
-        text: "กรุณากรอกรหัสพนักงาน 5 หลัก",
+        text: "กรุณากรอกรหัสพนักงาน 5 หลักเท่านั้น",
         icon: "error",
         confirmButtonColor: "#d33", 
         confirmButtonText: "ตกลง",
       })
       return
-    } 
+    } else if (!formData.first_name && formData.last_name) {
+      Swal.fire({
+        title: "กรุณากรอกข้อมูลให้ครบถ้วน",
+        text: "กรุณากรอกขื่อและนามสกุล",
+        icon: "error",
+        confirmButtonColor: "#d33", 
+        confirmButtonText: "ตกลง",
+      })
+      return
+    } else if (!formData.position && formData) {
+      Swal.fire({
+        title: "กรุณากรอกข้อมูลให้ครบถ้วน",
+        text: "กรุณากรอกตำแหน่งพนักงาน",
+        icon: "error",
+        confirmButtonColor: "#d33", 
+        confirmButtonText: "ตกลง",
+      })
+      return
+    } else if (!formData.department && formData) {
+      Swal.fire({
+        title: "กรุณากรอกข้อมูลให้ครบถ้วน",
+        text: "กรุณากรอกแผนกของพนักงาน",
+        icon: "error",
+        confirmButtonColor: "#d33", 
+        confirmButtonText: "ตกลง",
+      })
+      return
+    }
     try {
       const userData = {
         ...formData,
@@ -130,8 +156,6 @@ export default function SignUpForm() {
       }
     }
   }
-
-
 
   return (
     <div className="flex flex-col flex-1 w-full overflow-y-auto no-scrollbar">

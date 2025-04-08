@@ -6,6 +6,8 @@ import Label from '../../components/form/Label';
 import Input from '../../components/form/input/InputField';
 import { Calendar } from 'primereact/calendar';
 import { useEffect, useState } from 'react';
+import axios from 'axios'
+import Swal from 'sweetalert2'
 import './style.css'
 
 interface Product_Type {
@@ -109,6 +111,7 @@ const Machineform = () => {
         if (file) {
             setSelectedFile(file)
             setPreviewImage(URL.createObjectURL(file))
+            console.log('check file ===>', file)
         }
     }
 
@@ -144,26 +147,54 @@ const Machineform = () => {
     }
 
     // จัดการ submit ฟอร์ม
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        
-        if (validateForm()) {
-            // ทำการส่งข้อมูลไปยัง API หรือจัดการต่อไป
-            console.log({
-                productName,
-                employeeName,
-                productId,
-                productPrice,
-                productDepartment,
-                productTypeValue,
-                calendar,
-                selectedFile
+    
+const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (validateForm()) {
+        try {
+            const formData = new FormData();
+            const user_id = sessionStorage.getItem('user_id') || '';
+
+            formData.append('product_name', productName);
+            formData.append('employee_name', employeeName);
+            formData.append('product_id', productId);
+            formData.append('product_price', productPrice);
+            formData.append('product_department', productDepartment);
+            formData.append('product_type', Array.isArray(productTypeValue) ? productTypeValue[0] : productTypeValue);
+            formData.append('calendar', calendar?.toISOString() || '');
+            formData.append('add_by_user', user_id);
+
+            if (selectedFile) {
+                formData.append('image', selectedFile);
+                console.log('File:', selectedFile);
+            } else {
+                console.log('No file selected.');
+            }
+
+            // ✅ ส่งด้วย axios
+            const response = await axios.post('http://localhost:8000/api/product/createProduct', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
             });
-            
-            // ปิด Modal และรีเซ็ตฟอร์ม
-            closeModal();
+
+            if (response.data.status === 'success') {
+                console.log('Product added successfully!');
+                closeModal();
+            } else {
+                console.error('Failed to add product:', response.data.message);
+                Swal.fire('Error', response.data.message, 'error');
+            }
+
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.error('Error submitting form:', error);
+            Swal.fire('Error', error.response?.data?.message || 'Something went wrong', 'error');
+            }
         }
     }
+};
 
     return (
         <div>
@@ -284,6 +315,7 @@ const Machineform = () => {
                                         <Calendar 
                                             className='w-full shadow-lg rounded-lg' 
                                             id="buttondisplay" 
+                                            name="calendar"
                                             value={calendar} 
                                             onChange={(e) => setCalendar(e.target.value as Date | null)} 
                                             showIcon 
