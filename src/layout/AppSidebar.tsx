@@ -46,7 +46,7 @@ const navItems: NavItem[] = [
     icon: <ListIcon />,
     subItems: [
       { name: "Form Elements", path: "/form-elements", pro: false },
-      { name: "Machine Form", path: "/form-machine", pro: false }
+      { name: "อุปกรณ์คอมพิวเตอร์โน๊คบุ๊ค", path: "/form-machine", pro: false }
     ],
   },
   {
