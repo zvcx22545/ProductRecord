@@ -57,11 +57,12 @@ export const Modal: React.FC<ModalProps> = ({
   }, [isOpen]);
 
   // Click outside handler
-  const handleBackdropClick = (e: React.MouseEvent) => {
+  const handleBackdropClick = (_e: React.MouseEvent) => {
     if (closeOnOutsideClick) {
       onClose();
     }
   };
+  
 
   // Animation styles
   const animationStyle = {
