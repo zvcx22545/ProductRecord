@@ -613,7 +613,8 @@ const Machineform = () => {
                                         },
                                     }}
                                 />
-                                <button
+                                {currentRows && currentRows.length > 0 && (
+                                    <button
                                     type='submit'
                                     onClick={handleSaveAllChanges}
                                     disabled={upd.length === 0}
@@ -622,6 +623,9 @@ const Machineform = () => {
 
                                 >บันทึก
                                 </button>
+                                )
+}
+                                
                                 
                             </div>
 
