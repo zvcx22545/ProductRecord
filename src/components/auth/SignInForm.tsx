@@ -35,12 +35,12 @@ export default function SignInForm() {
     try {
 
       const response = await axios.post("http://localhost:8000/api/authen/login", formData);
-      console.log("Success:", response.data);
       if (response.data && response.data.status === true && response.data.token) {
 
         sessionStorage.setItem("token", response.data.token);
         sessionStorage.setItem("expiresAt", response.data.expiresAt);
         sessionStorage.setItem("user_id", response.data.userid);
+        sessionStorage.setItem("role", response.data.role);
         Swal.fire({
           title: " สำเร็จ!",
           text: "เข้าสู่ระบบสำเร็จ",

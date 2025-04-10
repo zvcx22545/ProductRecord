@@ -42,7 +42,7 @@ const navItems: NavItem[] = [
     path: "/profile",
   },
   {
-    name: "Forms",
+    name: "สินทรัพย์",
     icon: <ListIcon />,
     subItems: [
       { name: "Form Elements", path: "/form-elements", pro: false },

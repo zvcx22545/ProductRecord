@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import './style.css'
+import { Edit, Save, Cancel } from '@mui/icons-material'
 import {
     Table,
     TableBody,
@@ -16,8 +17,14 @@ import {
     TableHeader,
     TableRow,
 } from '../../components/ui/table';
+import * as React from 'react';
+import Pagination from '@mui/material/Pagination';
+import dayjs from 'dayjs'
+import 'dayjs/locale/th'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
 
-import ReactPaginate from 'react-paginate';
+// import Stack from '@mui/material/Stack';
 
 interface Product_Type {
     value: string | string[],
@@ -32,7 +39,20 @@ interface Product {
     price: number;
     department: string;
     image: string;
-  }
+    create_date: Date;
+    update_date: Date;
+}
+
+interface EditingProduct {
+    id: number;
+    product_name: string;
+    user_used: string;
+    product_id: string;
+    price: number;
+    department: string;
+    product_type?: string;
+    add_by_user?: string;
+}
 
 const Machineform = () => {
     const { isOpen, openModal, closeModal } = useModal()
@@ -48,9 +68,14 @@ const Machineform = () => {
     const [productDepartment, setProductDepartment] = useState('');
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
     const [Products, setProducts] = useState<Product[]>([])
-    const [currentPage, setCurrentPage] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const rowsPerPage = 6;
+    const [upd, setUpd] = useState<EditingProduct[]>([]);
+    const [editingRowId, setEditingRowId] = useState<number | null>(null);
 
-
+    dayjs.extend(utc)
+    dayjs.extend(timezone)
+    dayjs.locale('th') // ตั้ง locale เป็นไทย
     // ข้อมูลประเภทสินทรัพย์
     const productType: Product_Type[] = [
         {
@@ -101,7 +126,7 @@ const Machineform = () => {
                     const { data } = await axios.get(`http://localhost:8000/api/product/getProducts/${productTypeValue}`);
                     console.log('check data', data.product)
                     setProducts(data.product)
-                    
+
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -112,7 +137,11 @@ const Machineform = () => {
     useEffect(() => {
         console.log("Updated Products:", Products)
     }, [Products]);
-    
+
+    useEffect(() => {
+        console.log("Updated upd array:", upd)
+    }, [upd]);
+
 
     // รีเซ็ตฟอร์ม
     const resetForm = () => {
@@ -249,16 +278,101 @@ const Machineform = () => {
         }
     };
 
+    const handleStartEdit = (product: Product) => {
+        setEditingRowId(product.id);
+        
+        // ตรวจสอบว่ามีข้อมูลใน upd หรือไม่
+        const existingIndex = upd.findIndex(item => item.id === product.id);
+        
+        if (existingIndex === -1) {
+            // ถ้ายังไม่มีข้อมูลในการแก้ไข ให้เพิ่มข้อมูลเริ่มต้น
+            const user_id = sessionStorage.getItem('user_id') || '';
+            const newEditItem: EditingProduct = {
+                id: product.id,
+                product_name: product.product_name,
+                user_used: product.user_used,
+                product_id: product.product_id,
+                price: product.price,
+                department: product.department,
+                product_type: 'CO',
+                add_by_user: user_id
+            };
+            setUpd([...upd, newEditItem]);
+        }
+    };
+
+    // ยกเลิกการแก้ไข
+    const handleCancelEdit = (product: Product) => {
+        setEditingRowId(null);
+        const existingIndex = upd.findIndex(item => item.id === product.id);
+        if (existingIndex !== -1) {
+            // ถ้ามีข้อมูลในการแก้ไข ให้ลบออก
+            const updatedList = upd.filter(item => item.id !== product.id);
+            setUpd(updatedList);
+        }
+
+    };
+
+    // อัพเดทข้อมูลใน upd
+    const handleUpdateField = (id: number, field: string, value: string | number) => {
+        console.log('Updating field:', field, 'with value:', value); // Add this for debugging
+        
+        const updatedList = upd.map(item => {
+            if (item.id === id) {
+                return { ...item, [field]: value };
+            }
+            return item;
+        });
+        
+        setUpd(updatedList);
+    };
+
+    // บันทึกการแก้ไขทั้งหมด
+    const handleSaveAllChanges = async () => {
+        try {
+            // ส่งข้อมูลที่แก้ไขไปยัง API
+            const response = await axios.post('http://localhost:8000/api/product/updateProducts', { products: upd });
+            
+            if (response.data.status === 'success') {
+                Swal.fire('สำเร็จ', 'อัพเดทข้อมูลเรียบร้อยแล้ว', 'success');
+                setEditingRowId(null);
+                
+                // รีโหลดข้อมูล
+                const productTypeValue = 'CO';
+                const { data } = await axios.get(`http://localhost:8000/api/product/getProducts/${productTypeValue}`);
+                setProducts(data.product);
+                setUpd([]);
+            } else {
+                Swal.fire('Error', response.data.message, 'error');
+            }
+        } catch (error) {
+            console.error("Error updating products:", error);
+            Swal.fire('Error', 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล', 'error');
+        }
+    };
+
+    // หาข้อมูลที่กำลังแก้ไข
+    const getEditingValue = (id: number, field: string, defaultValue: any) => {
+        const editingItem = upd.find(item => item.id === id);
+        if (editingItem && editingItem[field as keyof EditingProduct] !== undefined) {
+            return editingItem[field as keyof EditingProduct];
+        }
+        return defaultValue;
+    };
+
     // pagination
-    const handlePageClick = (event: { selected: number }) => {
-        setCurrentPage(event.selected);
-      };
-    
-      // Pagination Logic
-      const productsPerPage = 6;
-      const offset = currentPage * productsPerPage;
-      const currentPageData = Products.slice(offset, offset + productsPerPage);
-    
+    const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
+        setCurrentPage(value);
+    }
+
+    // คำนวณ index
+    const indexOfLastRow = currentPage * rowsPerPage;
+    const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+    const currentRows = Products.slice(indexOfFirstRow, indexOfLastRow);
+
+    // จำนวนหน้าทั้งหมด
+    const pageCount = Math.ceil(Products.length / rowsPerPage);
+
 
     return (
         <div>
@@ -267,7 +381,40 @@ const Machineform = () => {
             />
             <PageBreadcrumb pageTitle="อุปกรณ์คอมพิวเตอร์โน๊คบุ๊ค" />
             <div className="content">
-                <div className="flex">
+                <div className="flex items-center justify-between">
+                    <div className="hidden lg:block">
+                        <form >
+                            <div className="relative">
+                                <button className="absolute -translate-y-1/2 left-4 top-1/2">
+                                    <svg
+                                        className="fill-gray-500 dark:fill-gray-400"
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 20 20"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            fillRule="evenodd"
+                                            clipRule="evenodd"
+                                            d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
+                                            fill=""
+                                        />
+                                    </svg>
+                                </button>
+                                <input
+                                    type="text"
+                                    placeholder="ค้นหาสินทรัพย์..."
+                                    className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px]"
+                                />
+
+                                {/* <button className="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400">
+                  <span> ⌘ </span>
+                  <span> K </span>
+                </button> */}
+                            </div>
+                        </form>
+                    </div>
                     <button
                         onClick={openModal}
                         className="ml-auto bg-[#009A3E] px-2 py-3 rounded-lg text-white hover:bg-[#7FBA20]">
@@ -326,71 +473,158 @@ const Machineform = () => {
                                         >
                                             รูปภาพสินทรัพย์
                                         </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                        >
+                                            วันที่เพิ่มสินทรัพย์
+                                        </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                        >
+                                            วันที่แก้ไขสินทรัพย์
+                                        </TableCell>
                                     </TableRow>
                                 </TableHeader>
 
                                 {/* Table Body */}
                                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                                    {currentPageData.map((product, index) => (
-                                        
+                                    {currentRows.map((product, index) => (
                                         <TableRow key={product.id}>
-
                                             <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                {index + 1}
+                                                {indexOfFirstRow + index + 1}
                                             </TableCell>
                                             <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                {product.product_id}
+                                                {editingRowId === product.id ? (
+                                                    <input 
+                                                        type="text" 
+                                                        value={getEditingValue(product.id, 'product_id', product.product_id)} 
+                                                        onChange={(e) => handleUpdateField(product.id, 'product_id', e.target.value)}
+                                                        className="w-full px-2 py-1 border rounded"
+                                                    />
+                                                ) : (
+                                                    product.product_id
+                                                )}
                                             </TableCell>
                                             <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                {product.product_name}
+                                                {editingRowId === product.id ? (
+                                                    <input 
+                                                        type="text" 
+                                                        value={getEditingValue(product.id, 'product_name', product.product_name)} 
+                                                        onChange={(e) => handleUpdateField(product.id, 'product_name', e.target.value)}
+                                                        className="w-full px-2 py-1 border rounded"
+                                                    />
+                                                ) : (
+                                                    product.product_name
+                                                )}
                                             </TableCell>
                                             <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                {product.user_used}
+                                                {editingRowId === product.id ? (
+                                                    <input 
+                                                        type="text" 
+                                                        value={getEditingValue(product.id, 'user_used', product.user_used)} 
+                                                        onChange={(e) => handleUpdateField(product.id, 'user_used', e.target.value)}
+                                                        className="w-full px-2 py-1 border rounded"
+                                                    />
+                                                ) : (
+                                                    product.user_used
+                                                )}
                                             </TableCell>
                                             <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                {product.department}
+                                                {editingRowId === product.id ? (
+                                                    <input 
+                                                        type="text" 
+                                                        value={getEditingValue(product.id, 'department', product.department)} 
+                                                        onChange={(e) => handleUpdateField(product.id, 'department', e.target.value)}
+                                                        className="w-full px-2 py-1 border rounded"
+                                                    />
+                                                ) : (
+                                                    product.department
+                                                )}
                                             </TableCell>
                                             <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                {product.price}
+                                                {editingRowId === product.id ? (
+                                                    <input 
+                                                        type="number" 
+                                                        value={getEditingValue(product.id, 'price', product.price)} 
+                                                        onChange={(e) => handleUpdateField(product.id, 'price', Number(e.target.value))}
+                                                        className="w-full px-2 py-1 border rounded"
+                                                    />
+                                                ) : (
+                                                    product.price
+                                                )}
                                             </TableCell>
-
                                             <TableCell className="px-5 py-4 sm:px-6 text-start">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-10 h-10 overflow-hidden rounded-full">
-                                                    <img
+                                                        <img
                                                             src={`http://localhost:8000/${product.image}`}
                                                             alt="product-image"
                                                             className="object-cover w-full h-full"
                                                         />
-
-
-
                                                     </div>
                                                 </div>
+                                            </TableCell>
+                                            <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                {dayjs(product.create_date).tz('Asia/Bangkok').format('D MMMM YYYY HH:mm')}
+                                            </TableCell>
+                                            <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                {dayjs(product.update_date).tz('Asia/Bangkok').format('D MMMM YYYY HH:mm')}
+                                            </TableCell>
+                                            <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                {editingRowId === product.id ? (
+                                                    <div className="flex gap-2">
+                                                        <Save
+                                                            onClick={() => setEditingRowId(null)}
+                                                            className="cursor-pointer text-green-600"
+                                                        />
+                                                        <Cancel
+                                                            onClick={() => handleCancelEdit(product)}
+                                                            className="cursor-pointer text-red-600"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <Edit
+                                                        onClick={() => handleStartEdit(product)}
+                                                        className="cursor-pointer"
+                                                    />
+                                                )}
                                             </TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
                             </Table>
-                            
-      {/* Pagination */}
-      <div className="flex justify-center mt-4">
-        <ReactPaginate
-          previousLabel="Previous"
-          nextLabel="Next"
-          breakLabel="..."
-          pageCount={Math.ceil(Products.length / productsPerPage)}
-          onPageChange={handlePageClick}
-          containerClassName="pagination"
-          pageClassName="page-item"
-          pageLinkClassName="page-link"
-          previousClassName="page-item"
-          previousLinkClassName="page-link"
-          nextClassName="page-item"
-          nextLinkClassName="page-link"
-          activeClassName="active"
-        />
-      </div>
+
+                            {/* Pagination */}
+                            <div className="mt-6 mb-3 w-full gap-4 flex items-center justify-between">
+                                <Pagination
+                                className='w-1/2 ml-5'
+                                    count={pageCount}
+                                    page={currentPage}
+                                    onChange={handlePageChange}
+                                    sx={{
+                                        "& .MuiPaginationItem-root": {
+                                            color: "#009A3E",
+                                        },
+                                        "& .Mui-selected": {
+                                            backgroundColor: "#009A3E !important",
+                                            color: "#fff",
+                                        },
+                                    }}
+                                />
+                                <button
+                                    type='submit'
+                                    onClick={handleSaveAllChanges}
+                                    disabled={upd.length === 0}
+                                    className={`${upd.length === 0 ? 'cursor-not-allowed opacity-50 w-full h-12 text-center mr-4 max-sm:w-[90%] max-lg:w-[50%] min-lg:w-[15%] px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-[#009A3E] shadow-theme-xs' 
+                                        : 'cursor-pointer w-full h-12 text-center mr-4 max-sm:w-[10%] max-lg:w-[50%] min-lg:w-[15%] px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-[#009A3E] shadow-theme-xs hover:bg-[#7FBA20]'} `}
+
+                                >บันทึก
+                                </button>
+                                
+                            </div>
+
                         </div>
                     </div>
                 </div>
