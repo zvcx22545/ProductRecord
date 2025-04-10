@@ -123,8 +123,8 @@ const Machineform = () => {
             try {
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['CO'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'ZZ' หรือ 'SV'
-                        : ['CO'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['ZZ', 'SV'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'ZZ' หรือ 'SV'
+                        : ['ZZ', 'SV'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
                 );
 
                 if (targetProduct) {
@@ -177,8 +177,8 @@ const Machineform = () => {
                     setEditingRowId(null);
                     const targetProduct = productType.find(item =>
                         Array.isArray(item.value)
-                            ? ['CO'].some(code => item.value.includes(code))
-                            : ['CO'].includes(item.value)
+                            ? ['ZZ', 'SV'].some(code => item.value.includes(code))
+                            : ['ZZ', 'SV'].includes(item.value)
                     );
 
                     if (targetProduct) {
@@ -452,8 +452,8 @@ const Machineform = () => {
                 setEditingRowId(null);
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['CO'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'CO' หรือ 'SV'
-                        : ['CO'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['ZZ', 'SV'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'CO' หรือ 'SV'
+                        : ['ZZ', 'SV'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
                 );
 
                 if (targetProduct) {

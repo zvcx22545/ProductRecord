@@ -54,7 +54,7 @@ interface EditingProduct {
     add_by_user?: string;
 }
 
-const Machineform = () => {
+const TowerModify = () => {
     const { isOpen, openModal, closeModal } = useModal()
     const [calendar, setCalendar] = useState<Date | null>(null)
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -123,8 +123,8 @@ const Machineform = () => {
             try {
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['CO'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'ZZ' หรือ 'SV'
-                        : ['CO'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['B'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'ZZ' หรือ 'SV'
+                        : ['B'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
                 );
 
                 if (targetProduct) {
@@ -177,8 +177,8 @@ const Machineform = () => {
                     setEditingRowId(null);
                     const targetProduct = productType.find(item =>
                         Array.isArray(item.value)
-                            ? ['CO'].some(code => item.value.includes(code))
-                            : ['CO'].includes(item.value)
+                            ? ['B'].some(code => item.value.includes(code))
+                            : ['B'].includes(item.value)
                     );
 
                     if (targetProduct) {
@@ -452,8 +452,8 @@ const Machineform = () => {
                 setEditingRowId(null);
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['CO'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'CO' หรือ 'SV'
-                        : ['CO'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['B'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'CO' หรือ 'SV'
+                        : ['B'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
                 );
 
                 if (targetProduct) {
@@ -1013,4 +1013,4 @@ const Machineform = () => {
     );
 }
 
-export default Machineform;
+export default TowerModify;

@@ -15,11 +15,17 @@ import Calendar from "./pages/Calendar";
 import BasicTables from "./pages/Tables/BasicTables";
 import FormElements from "./pages/Forms/FormElements";
 import Machineform from "./pages/Forms/machineform";
+import OfficeDecoration from "./pages/Forms/office-decoration";
+import TowerModify from "./pages/Forms/TowerModify";
+import Programform from "./pages/Forms/programform";
+import ToolOffice from "./pages/Forms/ToolOffice";
+import WaterSystem from "./pages/Forms/WaterSystem";
 import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import { ProtectedRoute } from "./components/common/Protect";
+import Electrical from "./pages/Forms/Electrical";
 
 export default function App() {
   return (
@@ -45,6 +51,12 @@ export default function App() {
               {/* Forms */}
               <Route path="/form-elements" element={<FormElements />} />
               <Route path="/form-machine" element={<Machineform />} />
+              <Route path="/form-program" element={<Programform />} />
+              <Route path="/form-decor" element={<OfficeDecoration />} />
+              <Route path="/form-tower" element={<TowerModify />} />
+              <Route path="/form-tooloffice" element={<ToolOffice />} />
+              <Route path="/form-electrical" element={<Electrical />} />
+              <Route path="/form-watersystem" element={<WaterSystem />} />
               {/* Tables */}
               <Route path="/basic-tables" element={<BasicTables />} />
 

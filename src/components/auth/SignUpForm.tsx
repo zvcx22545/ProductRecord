@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
@@ -28,6 +28,8 @@ export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showCFPassword, setShowCFPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [userRole, setuserRole] = useState<string | null>(null)
+
 
   const [formData, setFormdata] = useState<FormData>({
     user_id: 0,
@@ -77,7 +79,7 @@ export default function SignUpForm() {
         title: "รหัสพนักงานไม่ถูกต้อง",
         text: "กรุณากรอกรหัสพนักงาน 5 หลักเท่านั้น",
         icon: "error",
-        confirmButtonColor: "#d33", 
+        confirmButtonColor: "#d33",
         confirmButtonText: "ตกลง",
       })
       return
@@ -86,7 +88,7 @@ export default function SignUpForm() {
         title: "กรุณากรอกข้อมูลให้ครบถ้วน",
         text: "กรุณากรอกขื่อและนามสกุล",
         icon: "error",
-        confirmButtonColor: "#d33", 
+        confirmButtonColor: "#d33",
         confirmButtonText: "ตกลง",
       })
       return
@@ -95,7 +97,7 @@ export default function SignUpForm() {
         title: "กรุณากรอกข้อมูลให้ครบถ้วน",
         text: "กรุณากรอกตำแหน่งพนักงาน",
         icon: "error",
-        confirmButtonColor: "#d33", 
+        confirmButtonColor: "#d33",
         confirmButtonText: "ตกลง",
       })
       return
@@ -104,7 +106,7 @@ export default function SignUpForm() {
         title: "กรุณากรอกข้อมูลให้ครบถ้วน",
         text: "กรุณากรอกแผนกของพนักงาน",
         icon: "error",
-        confirmButtonColor: "#d33", 
+        confirmButtonColor: "#d33",
         confirmButtonText: "ตกลง",
       })
       return
@@ -132,7 +134,7 @@ export default function SignUpForm() {
           }
         })
       }
-      
+
     } catch (error) {
       if (axios.isAxiosError(error)) {
         // Now you can safely access response and message
@@ -157,13 +159,25 @@ export default function SignUpForm() {
     }
   }
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const roleUser = sessionStorage.getItem("role") || "";
+        setuserRole(roleUser)
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    })();
+  }, []);
+
   return (
     <div className="flex flex-col flex-1 w-full overflow-y-auto no-scrollbar">
 
       <div className="w-full max-w-md ml-4 mb-5 sm:pt-4">
         <Link
           to="/"
-            className="inline-flex items-center text-sm p-3 rounded-full bg-[#009A3E] text-white transition-colors hover:text-white dark:text-gray-400 dark:hover:text-gray-300 hover:bg-[#7FBA20]"
+          className="inline-flex items-center text-sm p-3 rounded-full bg-[#009A3E] text-white transition-colors hover:text-white dark:text-gray-400 dark:hover:text-gray-300 hover:bg-[#7FBA20]"
         >
           <ChevronLeftIcon className="size-5" />
           Back to Home
@@ -186,7 +200,7 @@ export default function SignUpForm() {
         <div className="mb-2 w-full mx-auto sm:mb-6">
 
           <p className=" mx-auto text-center font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-sm">
-            สมัครสมาชิก
+            {userRole === "admin" ? "เพิ่มสมาชิก" : "สมัครสมาชิก"}
           </p>
         </div>
         <div className="flex flex-col justify-center flex-1 w-full">
@@ -270,7 +284,7 @@ export default function SignUpForm() {
                         <Input
                           onChange={checkPassword}
                           placeholder="กรุณาระบุรหัสผ่าน"
-                          name= "confirm_password"
+                          name="confirm_password"
                           type={showCFPassword ? "text" : "password"}
                         />
                         <span
@@ -313,9 +327,9 @@ export default function SignUpForm() {
                       />
                     </div>
 
-                    <fieldset className="fieldset">
+                    <fieldset className={`fieldset ${userRole === 'admin' ? '' : 'hidden' }`}>
                       <Label>
-                       ระดับผู้ใช้งาน<span className="text-error-500">*</span>
+                        ระดับผู้ใช้งาน<span className="text-error-500">*</span>
                       </Label>
                       <select defaultValue="กำหนดสิทธิ์ให้ผู้ใช้งาน" name="role" onChange={handleChange} className="select ">
                         {roles.map((role) => (

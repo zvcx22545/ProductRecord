@@ -12,7 +12,7 @@ import {
   // PageIcon,
   // PieChartIcon,
   PlugInIcon,
-  TableIcon,
+  // TableIcon,
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
@@ -45,15 +45,21 @@ const navItems: NavItem[] = [
     name: "สินทรัพย์",
     icon: <ListIcon />,
     subItems: [
-      { name: "Form Elements", path: "/form-elements", pro: false },
-      { name: "อุปกรณ์คอมพิวเตอร์โน๊คบุ๊ค", path: "/form-machine", pro: false }
+      // { name: "Form Elements", path: "/form-elements", pro: false },
+      { name: "อุปกรณ์คอมพิวเตอร์โน๊คบุ๊ค", path: "/form-machine", pro: false },
+      { name: "โปรแกรม", path: "/form-program", pro: false },
+      { name: "สิ่งของตกแต่งสำนักงาน", path: "/form-decor", pro: false },
+      { name: "ส่วนปรับปรุงอาคาร", path: "/form-tower", pro: false },
+      { name: "อุปกรณ์สำนักงาน", path: "/form-tooloffice", pro: false },
+      { name: "ระบบไฟฟ้า", path: "/form-electrical", pro: false },
+      { name: "ระบบน้ำ", path: "/form-watersystem", pro: false },
     ],
   },
-  {
-    name: "Tables",
-    icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  },
+  // {
+  //   name: "Tables",
+  //   icon: <TableIcon />,
+  //   subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
+  // },
   // {
   //   name: "Pages",
   //   icon: <PageIcon />,
@@ -87,9 +93,9 @@ const othersItems: NavItem[] = [
   // },
   {
     icon: <PlugInIcon />,
-    name: "Authentication",
+    name: "เพิ่มสมาชิก",
     subItems: [
-      { name: "Sign In", path: "/signin", pro: false },
+      // { name: "Sign In", path: "/signin", pro: false },
       { name: "Sign Up", path: "/signup", pro: false },
     ],
   },
@@ -98,6 +104,7 @@ const othersItems: NavItem[] = [
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
+  const [userRole, setuserRole] = useState<string | null>(null);
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main" | "others";
@@ -137,6 +144,18 @@ const AppSidebar: React.FC = () => {
       setOpenSubmenu(null);
     }
   }, [location, isActive]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const roleUser = sessionStorage.getItem("role") || "";
+        setuserRole(roleUser)
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     if (openSubmenu !== null) {
@@ -353,7 +372,8 @@ const AppSidebar: React.FC = () => {
               </h2>
               {renderMenuItems(navItems, "main")}
             </div>
-            <div className="">
+            {userRole === 'admin' && (
+              <div className="">
               <h2
                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
                   !isExpanded && !isHovered
@@ -369,6 +389,8 @@ const AppSidebar: React.FC = () => {
               </h2>
               {renderMenuItems(othersItems, "others")}
             </div>
+            )}
+            
           </div>
         </nav>
         {/* {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null} */}
