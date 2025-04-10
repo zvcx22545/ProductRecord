@@ -351,7 +351,7 @@ const OfficeDecoration = () => {
                 product_id: product.product_id,
                 price: product.price,
                 department: product.department,
-                product_type: product.product_type,
+                product_type: 'FF',
                 add_by_user: user_id
             };
             setUpd([...upd, newEditItem]);
