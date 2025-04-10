@@ -34,7 +34,7 @@ export default function SignInForm() {
     e.preventDefault()
     try {
 
-      const response = await axios.post("http://localhost:8000/api/authen/login", formData);
+      const response = await axios.post("https://product-record-backend.vercel.app/api/authen/login", formData);
       if (response.data && response.data.status === true && response.data.token) {
 
         sessionStorage.setItem("token", response.data.token);

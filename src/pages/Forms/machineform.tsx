@@ -123,7 +123,7 @@ const Machineform = () => {
                 )
                 if (coProduct) {
                     const productTypeValue = 'CO'; // หรือจะใช้ coProduct.value ก็ได้ถ้าต้องการ
-                    const { data } = await axios.get(`http://localhost:8000/api/product/getProducts/${productTypeValue}`);
+                    const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts/${productTypeValue}`);
                     console.log('check data', data.product)
                     setProducts(data.product)
 
@@ -254,7 +254,7 @@ const Machineform = () => {
                     console.log('No file selected.');
                 }
 
-                const response = await axios.post('http://localhost:8000/api/product/createProduct', formData, {
+                const response = await axios.post('https://product-record-backend.vercel.app/api/product/createProduct', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -331,7 +331,7 @@ const Machineform = () => {
     const handleSaveAllChanges = async () => {
         try {
             // ส่งข้อมูลที่แก้ไขไปยัง API
-            const response = await axios.post('http://localhost:8000/api/product/updateProducts', { products: upd });
+            const response = await axios.post('https://product-record-backend.vercel.app/api/product/updateProducts', { products: upd });
             
             if (response.data.status === 'success') {
                 Swal.fire('สำเร็จ', 'อัพเดทข้อมูลเรียบร้อยแล้ว', 'success');
@@ -339,7 +339,7 @@ const Machineform = () => {
                 
                 // รีโหลดข้อมูล
                 const productTypeValue = 'CO';
-                const { data } = await axios.get(`http://localhost:8000/api/product/getProducts/${productTypeValue}`);
+                const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts/${productTypeValue}`);
                 setProducts(data.product);
                 setUpd([]);
             } else {
