@@ -134,7 +134,7 @@ const Machineform = () => {
                         ? targetProduct.value
                         : [targetProduct.value];
 
-                    const { data } = await axios.get(`http://localhost:8000/api/product/getProducts`, {
+                    const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts`, {
                         params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                     });
 
@@ -170,7 +170,7 @@ const Machineform = () => {
 
             // If confirmed, proceed with the deletion
             if (result.isConfirmed) {
-                const response = await axios.delete(`http://localhost:8000/api/product/deleteProduct/${productId}`);
+                const response = await axios.delete(`https://product-record-backend.vercel.app/api/product/deleteProduct/${productId}`);
 
                 if (response.data.status === 'success') {
                     Swal.fire('สำเร็จ', 'ทำการลบสินทรัพเสร็จสิ้น', 'success');
@@ -186,7 +186,7 @@ const Machineform = () => {
                             ? targetProduct.value
                             : [targetProduct.value];
 
-                        const { data } = await axios.get(`http://localhost:8000/api/product/getProducts`, {
+                        const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts`, {
                             params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                         });
                         setProducts(data.product);
@@ -312,7 +312,7 @@ const Machineform = () => {
                     console.log('No file selected.');
                 }
 
-                const response = await axios.post('http://localhost:8000/api/product/createProduct', formData, {
+                const response = await axios.post('https://product-record-backend.vercel.app/api/product/createProduct', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -445,7 +445,7 @@ const Machineform = () => {
 
             }
             // ส่งข้อมูลที่แก้ไขไปยัง API
-            const response = await axios.post('http://localhost:8000/api/product/update-Product', { products: upd });
+            const response = await axios.post('https://product-record-backend.vercel.app/api/product/update-Product', { products: upd });
 
             if (response.data.status === 'success') {
                 Swal.fire('สำเร็จ', 'อัพเดทข้อมูลเรียบร้อยแล้ว', 'success');
@@ -461,7 +461,7 @@ const Machineform = () => {
                         ? targetProduct.value
                         : [targetProduct.value];
 
-                    const { data } = await axios.get(`http://localhost:8000/api/product/getProducts`, {
+                    const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts`, {
                         params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                     });
                     setProducts(data.product);
@@ -739,7 +739,7 @@ const Machineform = () => {
                                                         <div className="flex items-center gap-3">
                                                             <div className="w-10 h-10 overflow-hidden rounded-full">
                                                                 <img
-                                                                    src={`http://localhost:8000/${product.image}`}
+                                                                    src={`https://product-record-backend.vercel.app/${product.image}`}
                                                                     alt="product-image"
                                                                     className="object-cover w-full h-full"
                                                                 />
