@@ -822,7 +822,7 @@ const Machineform = () => {
 
                                 >บันทึก
                                 </button>
-                                
+                                )}
                             </div>
 
                         </div>
