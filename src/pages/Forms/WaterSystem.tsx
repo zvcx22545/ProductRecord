@@ -54,7 +54,7 @@ interface EditingProduct {
     add_by_user?: string;
 }
 
-const Machineform = () => {
+const WaterSystem = () => {
     const { isOpen, openModal, closeModal } = useModal()
     const [calendar, setCalendar] = useState<Date | null>(null)
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -123,8 +123,8 @@ const Machineform = () => {
             try {
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['CO'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'ZZ' หรือ 'SV'
-                        : ['CO'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['WA'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'ZZ' หรือ 'SV'
+                        : ['WA'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
                 );
 
                 if (targetProduct) {
@@ -177,8 +177,8 @@ const Machineform = () => {
                     setEditingRowId(null);
                     const targetProduct = productType.find(item =>
                         Array.isArray(item.value)
-                            ? ['CO'].some(code => item.value.includes(code))
-                            : ['CO'].includes(item.value)
+                            ? ['WA'].some(code => item.value.includes(code))
+                            : ['WA'].includes(item.value)
                     );
 
                     if (targetProduct) {
@@ -312,7 +312,7 @@ const Machineform = () => {
                     console.log('No file selected.');
                 }
 
-                const response = await axios.post('https://product-record-backend.vercel.app/api/product/createProduct', formData, {
+                const response = await axios.post('http://localhost:8000/api/product/createProduct', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -452,8 +452,8 @@ const Machineform = () => {
                 setEditingRowId(null);
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['CO'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'CO' หรือ 'SV'
-                        : ['CO'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['WA'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'CO' หรือ 'SV'
+                        : ['WA'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
                 );
 
                 if (targetProduct) {
@@ -820,9 +820,11 @@ const Machineform = () => {
                                         className={`${upd.length === 0 ? 'cursor-not-allowed opacity-50 w-full h-12 text-center mr-4 max-sm:w-[10%] max-lg:w-[15%] min-lg:w-[15%] px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-[#009A3E] shadow-theme-xs'
                                             : 'cursor-pointer w-full h-12 text-center mr-4 max-sm:w-[10%] max-lg:w-[15%] min-lg:w-[15%] px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-[#009A3E] shadow-theme-xs hover:bg-[#7FBA20]'} `}
 
-                                >บันทึก
-                                </button>
-                                
+                                    >บันทึก
+                                    </button>
+                                )
+                                }
+
                             </div>
 
                         </div>
@@ -1011,4 +1013,4 @@ const Machineform = () => {
     );
 }
 
-export default Machineform;
+export default WaterSystem;
