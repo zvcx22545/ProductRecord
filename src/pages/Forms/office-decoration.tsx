@@ -470,8 +470,26 @@ const OfficeDecoration = () => {
                 Swal.fire('Error', response.data.message, 'error');
             }
         } catch (error) {
-            console.error("Error updating products:", error);
-            Swal.fire('Error', 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล', 'error');
+            if (axios.isAxiosError(error)) {
+                // Now you can safely access response and message
+                const errorMessage = error.response?.data?.message || "กรุณาลองใหม่อีกครั้ง"
+                Swal.fire({
+                  title: "เกิดข้อผิดพลาด!",
+                  text: errorMessage,
+                  icon: "error",
+                  confirmButtonColor: "#d33",
+                  confirmButtonText: "ตกลง",
+                })
+              } else {
+                // Fallback if error is not an AxiosError
+                Swal.fire({
+                  title: "เกิดข้อผิดพลาด!",
+                  text: "เกิดข้อผิดพลาดในการอัพเดทข้อมูล",
+                  icon: "error",
+                  confirmButtonColor: "#d33",
+                  confirmButtonText: "ตกลง",
+                })
+              }
         }
     };
 
