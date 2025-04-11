@@ -739,7 +739,7 @@ const Machineform = () => {
                                                         <div className="flex items-center gap-3">
                                                             <div className="w-10 h-10 overflow-hidden rounded-full">
                                                                 <img
-                                                                    src={`http://localhost:8000/${product.image}`}
+                                                                    src={product.image}
                                                                     alt="product-image"
                                                                     className="object-cover w-full h-full"
                                                                 />
