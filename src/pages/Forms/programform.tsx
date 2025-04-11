@@ -471,8 +471,26 @@ const Machineform = () => {
                 Swal.fire('Error', response.data.message, 'error');
             }
         } catch (error) {
-            console.error("Error updating products:", error);
-            Swal.fire('Error', 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล', 'error');
+            if (axios.isAxiosError(error)) {
+                // Now you can safely access response and message
+                const errorMessage = error.response?.data?.message || "กรุณาลองใหม่อีกครั้ง"
+                Swal.fire({
+                  title: "เกิดข้อผิดพลาด!",
+                  text: errorMessage,
+                  icon: "error",
+                  confirmButtonColor: "#d33",
+                  confirmButtonText: "ตกลง",
+                })
+              } else {
+                // Fallback if error is not an AxiosError
+                Swal.fire({
+                  title: "เกิดข้อผิดพลาด!",
+                  text: "เกิดข้อผิดพลาดในการอัพเดทข้อมูล",
+                  icon: "error",
+                  confirmButtonColor: "#d33",
+                  confirmButtonText: "ตกลง",
+                })
+              }
         }
     };
 
@@ -739,7 +757,7 @@ const Machineform = () => {
                                                         <div className="flex items-center gap-3">
                                                             <div className="w-10 h-10 overflow-hidden rounded-full">
                                                                 <img
-                                                                    src={`http://localhost:8000/${product.image}`}
+                                                                    src={product.image}
                                                                     alt="product-image"
                                                                     className="object-cover w-full h-full"
                                                                 />
