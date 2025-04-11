@@ -224,7 +224,6 @@ const Machineform = () => {
         if (file) {
             setSelectedFile(file)
             setPreviewImage(URL.createObjectURL(file))
-            console.log('check file ===>', file)
         }
     }
 
@@ -739,7 +738,7 @@ const Machineform = () => {
                                                         <div className="flex items-center gap-3">
                                                             <div className="w-10 h-10 overflow-hidden rounded-full">
                                                                 <img
-                                                                    src={`https://product-record-backend.vercel.app/${product.image}`}
+                                                                    src={product.image}
                                                                     alt="product-image"
                                                                     className="object-cover w-full h-full"
                                                                 />
