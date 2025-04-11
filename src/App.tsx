@@ -23,7 +23,7 @@ import WaterSystem from "./pages/Forms/WaterSystem";
 import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
-import Home from "./pages/Dashboard/Home";
+// import Home from "./pages/Dashboard/Home";
 import { ProtectedRoute } from "./components/common/Protect";
 import Electrical from "./pages/Forms/Electrical";
 
