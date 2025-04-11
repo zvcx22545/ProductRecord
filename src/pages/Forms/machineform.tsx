@@ -322,8 +322,8 @@ const Machineform = () => {
 
                 if (response.data.status === 'success') {
                     closeModal();
-                    // window.location.reload();
                     navigate('/')
+                    window.location.reload();
                 } else {
                     console.error('Failed to add product:', response.data.message);
                     Swal.fire('Error', response.data.message, 'error');

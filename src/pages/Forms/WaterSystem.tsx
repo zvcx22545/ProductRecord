@@ -23,6 +23,7 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/th'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
+import { useNavigate } from 'react-router-dom'
 
 // import Stack from '@mui/material/Stack';
 
@@ -155,6 +156,7 @@ const WaterSystem = () => {
         console.log("Updated upd array:", upd)
     }, [upd]);
 
+    const navigate = useNavigate()
 
     const handleDelete = async (productId: number) => {
         try {
@@ -320,6 +322,7 @@ const WaterSystem = () => {
 
                 if (response.data.status === 'success') {
                     closeModal();
+                    navigate('/')
                     window.location.reload();
                 } else {
                     console.error('Failed to add product:', response.data.message);
