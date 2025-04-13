@@ -118,7 +118,6 @@ export default function SignUpForm() {
       }
 
       const response = await axios.post("http://localhost:8000/api/authen/register", userData)
-      console.log("Success:", response.data)
       if (response.data && response.data.newUser) {
         // If newUser exists, show success message
         Swal.fire({

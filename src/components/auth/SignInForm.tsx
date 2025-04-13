@@ -23,7 +23,7 @@ export default function SignInForm() {
   const navigate = useNavigate()
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    console.log(name, value)
+    // console.log(name, value)
     setFormData((prev) => ({
       ...prev,
       [name]: value,
