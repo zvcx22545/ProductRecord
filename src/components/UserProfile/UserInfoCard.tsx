@@ -41,7 +41,7 @@ export default function UserInfoCard({userProfile}) {
                 ชื่อ
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Musharof
+                {userProfile?.first_name}
               </p>
             </div>
 
@@ -50,7 +50,7 @@ export default function UserInfoCard({userProfile}) {
                 นามสกุล
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Chowdhury
+                {userProfile?.last_name}
               </p>
             </div>
 
@@ -59,7 +59,7 @@ export default function UserInfoCard({userProfile}) {
                 รหัสพนักงาน
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                randomuser@pimjo.com
+                {userProfile?.user_id}
               </p>
             </div>
 
@@ -68,7 +68,7 @@ export default function UserInfoCard({userProfile}) {
                 ตำแหน่งพนักงาน
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                +09 363 398 46
+                {userProfile?.position}
               </p>
             </div>
 
@@ -77,7 +77,7 @@ export default function UserInfoCard({userProfile}) {
                 ระดับสิทธิ์การใช้งาน
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Team Manager
+                {userProfile?.role}
               </p>
             </div>
           </div>
