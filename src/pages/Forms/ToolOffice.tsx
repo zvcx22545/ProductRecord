@@ -123,8 +123,8 @@ const ToolOffice = () => {
             try {
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['TO', 'MC', 'EQ'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'ZZ' หรือ 'SV'
-                        : ['TO', 'MC', 'EQ'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['TO', 'MC', 'EQ'].some(code => item.value.includes(code))
+                        : ['TO', 'MC', 'EQ'].includes(item.value) // ตรวจสอบว่า type เป็น string หรือไม่
                 );
 
                 if (targetProduct) {
@@ -452,8 +452,8 @@ const ToolOffice = () => {
                 setEditingRowId(null);
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['TO', 'MC', 'EQ'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'CO' หรือ 'SV'
-                        : ['TO', 'MC', 'EQ'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['TO', 'MC', 'EQ'].some(code => item.value.includes(code)) 
+                        : ['TO', 'MC', 'EQ'].includes(item.value) // ตรวจสอบว่า type เป็น string หรือไม่
                 );
 
                 if (targetProduct) {

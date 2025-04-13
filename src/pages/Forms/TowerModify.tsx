@@ -123,8 +123,8 @@ const TowerModify = () => {
             try {
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['B'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'ZZ' หรือ 'SV'
-                        : ['B'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['B'].some(code => item.value.includes(code))
+                        : ['B'].includes(item.value) // ตรวจสอบว่า type เป็น string หรือไม่
                 );
 
                 if (targetProduct) {
@@ -452,8 +452,8 @@ const TowerModify = () => {
                 setEditingRowId(null);
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['B'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'CO' หรือ 'SV'
-                        : ['B'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['B'].some(code => item.value.includes(code)) 
+                        : ['B'].includes(item.value) // ตรวจสอบว่า type เป็น string หรือไม่
                 );
 
                 if (targetProduct) {

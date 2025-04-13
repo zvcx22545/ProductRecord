@@ -123,8 +123,8 @@ const Machineform = () => {
             try {
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['CO'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'ZZ' หรือ 'SV'
-                        : ['CO'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['CO'].some(code => item.value.includes(code))
+                        : ['CO'].includes(item.value) // ตรวจสอบว่า type เป็น string หรือไม่
                 );
 
                 if (targetProduct) {
@@ -452,8 +452,8 @@ const Machineform = () => {
                 setEditingRowId(null);
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['CO'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'CO' หรือ 'SV'
-                        : ['CO'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['CO'].some(code => item.value.includes(code)) 
+                        : ['CO'].includes(item.value) // ตรวจสอบว่า type เป็น string หรือไม่
                 );
 
                 if (targetProduct) {

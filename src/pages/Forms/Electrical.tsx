@@ -123,8 +123,8 @@ const Electrical = () => {
             try {
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['EL'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'ZZ' หรือ 'SV'
-                        : ['EL'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['EL'].some(code => item.value.includes(code))
+                        : ['EL'].includes(item.value) // ตรวจสอบว่า type เป็น string หรือไม่
                 );
 
                 if (targetProduct) {
@@ -452,8 +452,8 @@ const Electrical = () => {
                 setEditingRowId(null);
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['EL'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'CO' หรือ 'SV'
-                        : ['EL'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['EL'].some(code => item.value.includes(code)) 
+                        : ['EL'].includes(item.value) // ตรวจสอบว่า type เป็น string หรือไม่
                 );
 
                 if (targetProduct) {

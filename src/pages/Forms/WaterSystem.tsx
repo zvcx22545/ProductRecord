@@ -123,8 +123,8 @@ const WaterSystem = () => {
             try {
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['WA'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'ZZ' หรือ 'SV'
-                        : ['WA'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['WA'].some(code => item.value.includes(code))
+                        : ['WA'].includes(item.value) // ตรวจสอบว่า type เป็น string หรือไม่
                 );
 
                 if (targetProduct) {
@@ -452,8 +452,8 @@ const WaterSystem = () => {
                 setEditingRowId(null);
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['WA'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'CO' หรือ 'SV'
-                        : ['WA'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['WA'].some(code => item.value.includes(code)) 
+                        : ['WA'].includes(item.value) // ตรวจสอบว่า type เป็น string หรือไม่
                 );
 
                 if (targetProduct) {

@@ -123,8 +123,8 @@ const OfficeDecoration = () => {
             try {
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['FF'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'ZZ' หรือ 'SV'
-                        : ['FF'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['FF'].some(code => item.value.includes(code))
+                        : ['FF'].includes(item.value) // ตรวจสอบว่า type เป็น string หรือไม่
                 );
 
                 if (targetProduct) {
@@ -452,8 +452,8 @@ const OfficeDecoration = () => {
                 setEditingRowId(null);
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['FF'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'CO' หรือ 'SV'
-                        : ['FF'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['FF'].some(code => item.value.includes(code)) 
+                        : ['FF'].includes(item.value) // ตรวจสอบว่า type เป็น string หรือไม่
                 );
 
                 if (targetProduct) {
