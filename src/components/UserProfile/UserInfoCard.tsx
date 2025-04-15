@@ -3,13 +3,16 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
-
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Swal from "sweetalert2";
 interface Props {
   userProfile: User | null;
 }
 
 interface User {
-  user_id: number;
+  id: number,
+  user_id: string;
   first_name: string;
   last_name: string;
   position: string;
@@ -20,13 +23,112 @@ interface User {
 }
 
 
-export default function UserInfoCard({userProfile}) {
+interface FormData {
+  id: number,
+  user_id: string
+  first_name: string
+  last_name: string
+  position: string
+  department: string
+  password: string
+  profile_image: string
+}
+
+
+export default function UserInfoCard({ userProfile }: Props) {
   const { isOpen, openModal, closeModal } = useModal();
-  const handleSave = () => {
-    // Handle save logic here
-    console.log("Saving changes...");
-    closeModal();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const [formData, setFormData] = useState<FormData>({
+    id: userProfile?.id || 0,
+    user_id: '',
+    first_name: '',
+    last_name: '',
+    position: '',
+    department: '',
+    password: '',
+    profile_image: '',
+  });
+
+  useEffect(() => {
+    if (userProfile) {
+      setFormData({
+        id: userProfile.id,
+        user_id: userProfile.user_id,
+        first_name: userProfile.first_name,
+        last_name: userProfile.last_name,
+        position: userProfile.position,
+        department: userProfile.department,
+        password: userProfile.password,
+        profile_image: userProfile.profile_image,
+      });
+    }
+  }, [userProfile]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const formDataToSend = new FormData();
+      // Append all user data fields to the FormData
+      formDataToSend.append('id', formData.id.toString());
+      formDataToSend.append('user_id', formData.user_id);
+      formDataToSend.append('first_name', formData.first_name);
+      formDataToSend.append('last_name', formData.last_name);
+      formDataToSend.append('position', formData.position);
+      formDataToSend.append('department', formData.department);
+      formDataToSend.append('password', formData.password);
+      
+      // If there's a selected file, append it to FormData
+      if (selectedFile) {
+        formDataToSend.append('profile_image', selectedFile);
+      } else {
+        // If no new file is selected but there's an existing profile image
+        formDataToSend.append('profile_image', formData.profile_image);
+      }
+
+      // Send the FormData to your API endpoint
+      const { data } = await axios.post(
+        `http://localhost:8000/api/authen/updateUser`, 
+        formDataToSend,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      console.log("User updated:", data);
+      if (data.status === true) {
+        Swal.fire({
+          title: 'สำเร็จ',
+          text: 'อัพเดทข้อมูลเรียบร้อยแล้ว',
+          icon: 'success',
+          showConfirmButton: true, 
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.reload();
+            closeModal();
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update user:", error);
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      setSelectedFile(file)
+      setPreviewImage(URL.createObjectURL(file))
+      console.log('check file ===>', file)
+    }
+  }
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
@@ -110,86 +212,82 @@ export default function UserInfoCard({userProfile}) {
         <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
           <div className="px-2 pr-14">
             <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              แก้ไขข้อมูลพนักงาน
+              อัพเดทข้อมูลพนักงาน
             </h4>
-            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-              Update your details to keep your profile up-to-date.
-            </p>
           </div>
-          <form className="flex flex-col">
+          <form className="flex flex-col" onSubmit={handleSave}>
             <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
-              <div>
-                <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Social Links
-                </h5>
-
-                <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div>
-                    <Label>Facebook</Label>
-                    <Input
-                      type="text"
-                      value="https://www.facebook.com/PimjoHQ"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>X.com</Label>
-                    <Input type="text" value="https://x.com/PimjoHQ" />
-                  </div>
-
-                  <div>
-                    <Label>Linkedin</Label>
-                    <Input
-                      type="text"
-                      value="https://www.linkedin.com/company/pimjo"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Instagram</Label>
-                    <Input type="text" value="https://instagram.com/PimjoHQ" />
-                  </div>
-                </div>
-              </div>
               <div className="mt-7">
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Personal Information
+                  ข้อมูลพนักงาน
                 </h5>
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>First Name</Label>
-                    <Input type="text" value="Musharof" />
+                    <Label>ชื่อ</Label>
+                    <Input type="text" name="first_name" value={formData.first_name} onChange={handleChange} />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Last Name</Label>
-                    <Input type="text" value="Chowdhury" />
+                    <Label>นามสกุุล</Label>
+                    <Input type="text" name="last_name" value={formData.last_name} onChange={handleChange} />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Email Address</Label>
-                    <Input type="text" value="randomuser@pimjo.com" />
+                    <Label>รหัสพนักงาน</Label>
+                    <Input type="text" name="user_id" value={formData.user_id} onChange={handleChange} />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Phone</Label>
-                    <Input type="text" value="+09 363 398 46" />
+                    <Label>แผนกพนักงาน</Label>
+                    <Input type="text" name="department" value={formData.department} onChange={handleChange} />
                   </div>
 
                   <div className="col-span-2">
-                    <Label>Bio</Label>
-                    <Input type="text" value="Team Manager" />
+                    <Label>ตำแหน่งพนักงาน</Label>
+                    <Input type="text" name="position" value={formData.position} onChange={handleChange} />
                   </div>
+
                 </div>
+                  {/* Preview Image */}
+                  <div className="flex justify-center mt-4 shadow-lg rounded-lg max-w-[300px] max-h-[300px] mx-auto">
+                  {previewImage ? (
+                    <img src={previewImage} alt="Preview" className="min-lg:max-w-[300px] min-lg:max-h-[300px] object-cover rounded-lg shadow-lg" />
+                  ) : formData.profile_image ? (
+                    <img src={formData.profile_image} alt="Current Profile" className="min-lg:max-w-[300px] min-lg:max-h-[300px] object-cover rounded-lg shadow-lg" />
+                  ) : null}
+                </div>
+
+                {/* File upload */}
+                <Label className="flex items-center cursor-pointer justify-center gap-2 mt-8 max-sm:w-[90%] max-lg:w-[50%] min-lg:w-full mx-auto px-3 py-2 text-sm font-medium text-white transition rounded-lg bg-[#009A3E] shadow-theme-xs hover:bg-[#7FBA20]">
+                  <div className="flex h-[40px] w-[40px] cursor-pointer items-center justify-center rounded-full bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                    <svg
+                      className="fill-current cursor-pointer"
+                      width="30"
+                      height="30"
+                      viewBox="0 0 29 28"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                        d="M14.5019 3.91699C14.2852 3.91699 14.0899 4.00891 13.953 4.15589L8.57363 9.53186C8.28065 9.82466 8.2805 10.2995 8.5733 10.5925C8.8661 10.8855 9.34097 10.8857 9.63396 10.5929L13.7519 6.47752V18.667C13.7519 19.0812 14.0877 19.417 14.5019 19.417C14.9161 19.417 15.2519 19.0812 15.2519 18.667V6.48234L19.3653 10.5929C19.6583 10.8857 20.1332 10.8855 20.426 10.5925C20.7188 10.2995 20.7186 9.82463 20.4256 9.53184L15.0838 4.19378C14.9463 4.02488 14.7367 3.91699 14.5019 3.91699ZM5.91626 18.667C5.91626 18.2528 5.58047 17.917 5.16626 17.917C4.75205 17.917 4.41626 18.2528 4.41626 18.667V21.8337C4.41626 23.0763 5.42362 24.0837 6.66626 24.0837H22.3339C23.5766 24.0837 24.5839 23.0763 24.5839 21.8337V18.667C24.5839 18.2528 24.2482 17.917 23.8339 17.917C23.4197 17.917 23.0839 18.2528 23.0839 18.667V21.8337C23.0839 22.2479 22.7482 22.5837 22.3339 22.5837H6.66626C6.25205 22.5837 5.91626 22.2479 5.91626 21.8337V18.667Z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="text-center">
+                    <input type="file" className="hidden" onChange={handleFileChange} accept="image/*" />
+                    <div className="min-lg:text-lg">Upload file</div>
+                  </div>
+                </Label>
               </div>
             </div>
-            <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-              <Button size="sm" variant="outline" onClick={closeModal}>
-                Close
+            <div className="flex items-center gap-3 px-2 mt-2 justify-center">
+              <Button size="sm" type="submit">
+                บันทึก
               </Button>
-              <Button size="sm" onClick={handleSave}>
-                Save Changes
+              <Button size="sm" variant="outline" onClick={closeModal}>
+                ยกเลิก
               </Button>
             </div>
           </form>

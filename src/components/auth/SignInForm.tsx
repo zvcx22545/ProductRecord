@@ -87,7 +87,7 @@ export default function SignInForm() {
           className="inline-flex items-center text-sm p-3 rounded-full bg-[#009A3E] text-white transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
         >
           <ChevronLeftIcon className="size-5" />
-          Back to Home
+          กลับไปยังหน้าหลัก
         </Link>
       </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
@@ -95,7 +95,7 @@ export default function SignInForm() {
           <div className="mb-2 w-full mx-auto sm:mb-6">
 
             <p className=" mx-auto text-center font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-sm">
-              Sign In
+              เข้าสู่ระบบ
             </p>
           </div>
           <div>
@@ -104,23 +104,23 @@ export default function SignInForm() {
                 {/* <!-- Exployee ID --> */}
                 <div>
                   <Label>
-                    Employee ID<span className="text-error-500">*</span>
+                    รหัสพนักงาน<span className="text-error-500">*</span>
                   </Label>
                   <Input
                     type="text"
                     id="user_id"
                     name="user_id"
-                    placeholder="Enter your Employyee ID"
+                    placeholder="กรุณากรอกรหัสพนักงาน"
                     onChange={handleChange}
                   />
                 </div>
                 <div>
                   <Label>
-                    Password <span className="text-error-500">*</span>{" "}
+                    รหัสผ่าน <span className="text-error-500">*</span>{" "}
                   </Label>
                   <div className="relative">
                     <Input
-                      placeholder="Enter your password"
+                      placeholder="กรุณากรอกรหัสผ่าน"
                       name="password"
                       type={showPassword ? "text" : "password"}
                       onChange={handleChange}
@@ -164,12 +164,13 @@ export default function SignInForm() {
 
             <div className="mt-5">
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                Don&apos;t have an account? {""}
+                {/* Don&apos;t have an account? {""} */}
+                ถ้ายังไม่มีรหัสผ่านกรุณา
                 <Link
                   to="/signup"
-                  className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                  className="text-brand-500 hover:text-brand-600 dark:text-brand-400 hover:underline"
                 >
-                  Sign Up
+                  สมัครสมาชิก
                 </Link>
               </p>
             </div>

@@ -3,8 +3,20 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
-import NotificationDropdown from "../components/header/NotificationDropdown";
+// import NotificationDropdown from "../components/header/NotificationDropdown";
 import UserDropdown from "../components/header/UserDropdown";
+import axios from "axios";
+
+interface User {
+  user_id: number;
+  first_name: string;
+  last_name: string;
+  position: string;
+  role: string;
+  department: string;
+  password: string;
+  profile_image: string;
+}
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
@@ -39,6 +51,26 @@ const AppHeader: React.FC = () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  const [userProfile, setUserProfile] = useState<User | null>(null);
+
+  const user_id = sessionStorage.getItem('user_id')
+
+  useEffect(() => {
+    (async () => {
+      try{
+        console.log('user_id is', user_id)
+        const {data} = await axios.get(`http://localhost:8000/api/authen/getUserByid/${user_id}`)
+        if (data.status === true) {
+          console.log("set data -------*", data.row)
+        setUserProfile(data.row)
+        }
+        
+      } catch (error) {
+        console.log("error to get profile", error)
+      }
+    })();
+  },[])
 
   return (
     <header className="sticky top-0 flex w-full bg-white border-gray-200 z-100 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
@@ -170,11 +202,11 @@ const AppHeader: React.FC = () => {
             {/* <!-- Dark Mode Toggler --> */}
             <ThemeToggleButton />
             {/* <!-- Dark Mode Toggler --> */}
-            <NotificationDropdown />
+            {/* <NotificationDropdown /> */}
             {/* <!-- Notification Menu Area --> */}
           </div>
           {/* <!-- User Area --> */}
-          <UserDropdown />
+          <UserDropdown userProfile = {userProfile}/>
         </div>
       </div>
     </header>
