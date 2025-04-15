@@ -329,7 +329,7 @@ const Machineform = () => {
                             ? targetProduct.value
                             : [targetProduct.value];
 
-                        const { data } = await axios.get(`http://localhost:8000/api/product/getProducts`, {
+                        const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts`, {
                             params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                         });
                         setProducts(data.product);
