@@ -9,21 +9,12 @@ import { useEffect, useState } from 'react';
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import './style.css'
-import { Edit, Save, Cancel, Delete } from '@mui/icons-material'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHeader,
-    TableRow,
-} from '../../components/ui/table';
 import * as React from 'react';
-import Pagination from '@mui/material/Pagination';
 import dayjs from 'dayjs'
 import 'dayjs/locale/th'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
-import { useNavigate } from 'react-router-dom'
+import ProductTable from './ProductTable';
 
 // import Stack from '@mui/material/Stack';
 
@@ -76,6 +67,8 @@ const WaterSystem = () => {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
     const [roleUser, setRoleUser] = useState<string>('');
+    const [countProduct, setCountProduct] = useState<number>(0);
+    
 
     dayjs.extend(utc)
     dayjs.extend(timezone)
@@ -124,8 +117,8 @@ const WaterSystem = () => {
             try {
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['WA'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'ZZ' หรือ 'SV'
-                        : ['WA'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['WA'].some(code => item.value.includes(code))
+                        : ['WA'].includes(item.value) // ตรวจสอบว่า type เป็น string หรือไม่
                 );
 
                 if (targetProduct) {
@@ -140,6 +133,7 @@ const WaterSystem = () => {
                     });
 
                     setProducts(data.product);
+                    setCountProduct(data.product.length);
                     setFilteredProducts(data.product);
                 }
             } catch (error) {
@@ -155,8 +149,6 @@ const WaterSystem = () => {
     useEffect(() => {
         console.log("Updated upd array:", upd)
     }, [upd]);
-
-    const navigate = useNavigate()
 
     const handleDelete = async (productId: number) => {
         try {
@@ -192,6 +184,7 @@ const WaterSystem = () => {
                             params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                         });
                         setProducts(data.product);
+                        setCountProduct(data.product.length);
                         setUpd([]);
                     }
                 } else {
@@ -267,30 +260,32 @@ const WaterSystem = () => {
         e.preventDefault();
 
         if (productId && productId.length >= 2) {
-
-            const idPrefix = productId.substring(0, 2).toUpperCase().replace(/[^A-Z]/g, '');
-            const currentProductType = Array.isArray(productTypeValue)
-                ? productTypeValue[0]
-                : productTypeValue;
-            let correctTypeLabel = ''
-
-            for (const type of productType) {
-                if (Array.isArray(type.value)) {
-                    // Check if prefix is in the array of values
-                    if (type.value.includes(idPrefix)) {
+                    const idPrefix = productId.substring(0, 2).toUpperCase().replace(/[^A-Z]/g, '');
+                    let correctTypeLabel = '';
+                    let matchedTypeCode = '';
+        
+                    for (const type of productType) {
+                        const values = Array.isArray(type.value) ? type.value : [type.value];
                         correctTypeLabel = type.label;
+        
+                        if (values.includes(idPrefix)) {
+                            correctTypeLabel = type.label;
+                            matchedTypeCode = idPrefix; //ปรับให้ข้อมูลที่จาก dropdown ตรง กับเลขสินทรัพย์ที่กรอก
+                            setProductTypeValue(matchedTypeCode)
+                            break;
+                        }
                     }
-                } else if (type.value === idPrefix) {
-                    correctTypeLabel = type.label;
+        
+                    // productTypeValue คือสิ่งที่ผู้ใช้เลือกจาก dropdown
+                    const selectedType = Array.isArray(productTypeValue) ? productTypeValue.find((x) => x === idPrefix)
+                        : productTypeValue === idPrefix
+                            ? productTypeValue
+                            : null;
+        
+                    if (matchedTypeCode !== selectedType) {
+                        return Swal.fire('แจ้งเตือน', `กรุณาเลือกประเภท ( ${correctTypeLabel} )`, 'error');
+                    }
                 }
-
-            }
-
-            // If product type doesn't match the ID prefix
-            if (currentProductType !== idPrefix) {
-                return Swal.fire('แจ้งเตือน', `กรุณาเลือกประเภท ( ${correctTypeLabel} )`, 'error');
-            }
-        }
 
         if (validateForm()) {
             try {
@@ -321,9 +316,27 @@ const WaterSystem = () => {
                 });
 
                 if (response.data.status === 'success') {
-                    closeModal();
-                    navigate('/')
-                    window.location.reload();
+                    Swal.fire('สำเร็จ', 'ทำการเพิ่มสินทรัพเสร็จสิ้น', 'success');
+                    setEditingRowId(null);
+                    const targetProduct = productType.find(item =>
+                        Array.isArray(item.value)
+                            ? ['WA'].some(code => item.value.includes(code))
+                            : ['WA'].includes(item.value)
+                    );
+
+                    if (targetProduct) {
+                        const typeValues = Array.isArray(targetProduct.value)
+                            ? targetProduct.value
+                            : [targetProduct.value];
+
+                        const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts`, {
+                            params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
+                        });
+                        setProducts(data.product);
+                        setCountProduct(data.product.length);
+                        setUpd([]);
+                        closeModal()
+                    }
                 } else {
                     console.error('Failed to add product:', response.data.message);
                     Swal.fire('Error', response.data.message, 'error');
@@ -336,69 +349,6 @@ const WaterSystem = () => {
                 }
             }
         }
-    };
-
-    const handleStartEdit = (product: Product) => {
-        setEditingRowId(product.id);
-
-        // ตรวจสอบว่ามีข้อมูลใน upd หรือไม่
-        const existingIndex = upd.findIndex(item => item.id === product.id);
-
-        if (existingIndex === -1) {
-            // ถ้ายังไม่มีข้อมูลในการแก้ไข ให้เพิ่มข้อมูลเริ่มต้น
-            const user_id = sessionStorage.getItem('user_id') || '';
-            const newEditItem: EditingProduct = {
-                id: product.id,
-                product_name: product.product_name,
-                user_used: product.user_used,
-                product_id: product.product_id,
-                price: product.price,
-                department: product.department,
-                product_type: 'CO',
-                add_by_user: user_id
-            };
-            setUpd([...upd, newEditItem]);
-        }
-    };
-
-    // ยกเลิกการแก้ไข
-    const handleCancelEdit = (product: Product) => {
-        setEditingRowId(null);
-        const existingIndex = upd.findIndex(item => item.id === product.id);
-        if (existingIndex !== -1) {
-            // ถ้ามีข้อมูลในการแก้ไข ให้ลบออก
-            const updatedList = upd.filter(item => item.id !== product.id);
-            setUpd(updatedList);
-        }
-
-    };
-
-    // const handleSave = () => {
-    //     if (editingRowId !== null) {
-    //         const updatedProduct = upd.find(item => item.id === editingRowId);
-    //         if (updatedProduct) {
-    //             const newProducts = Products.map(product =>
-    //                 product.id === editingRowId ? { ...product, ...updatedProduct } : product
-    //             );
-    //             setProducts(newProducts);
-    //             setEditingRowId(null);
-    //         }
-    //     }
-    // };
-
-
-    // อัพเดทข้อมูลใน upd
-    const handleUpdateField = (id: number, field: string, value: string | number) => {
-        console.log('Updating field:', field, 'with value:', value); // Add this for debugging
-
-        const updatedList = upd.map(item => {
-            if (item.id === id) {
-                return { ...item, [field]: value };
-            }
-            return item;
-        });
-
-        setUpd(updatedList);
     };
 
     // บันทึกการแก้ไขทั้งหมด
@@ -455,8 +405,8 @@ const WaterSystem = () => {
                 setEditingRowId(null);
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['WA'].some(code => item.value.includes(code)) // ✅ ตรวจว่ามี 'CO' หรือ 'SV'
-                        : ['WA'].includes(item.value) // ✅ ตรวจแบบ string เดี่ยว
+                        ? ['WA'].some(code => item.value.includes(code)) 
+                        : ['WA'].includes(item.value) // ตรวจสอบว่า type เป็น string หรือไม่
                 );
 
                 if (targetProduct) {
@@ -497,20 +447,6 @@ const WaterSystem = () => {
         }
     };
 
-    // หาข้อมูลที่กำลังแก้ไข
-    const getEditingValue = (id: number, field: string, defaultValue: any) => {
-        const editingItem = upd.find(item => item.id === id);
-        if (editingItem && editingItem[field as keyof EditingProduct] !== undefined) {
-            return editingItem[field as keyof EditingProduct];
-        }
-        return defaultValue;
-    };
-
-    // pagination
-    const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
-        setCurrentPage(value);
-    }
-
     useEffect(() => {
         if (!searchTerm.trim()) {
             // If search term is empty, show all products
@@ -538,17 +474,6 @@ const WaterSystem = () => {
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
     };
-
-    // คำนวณ index
-    const indexOfLastRow = currentPage * rowsPerPage;
-    const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-    // const currentRows = Products.slice(indexOfFirstRow, indexOfLastRow);
-    const currentRows = filteredProducts.slice(indexOfFirstRow, indexOfLastRow);
-
-
-    // จำนวนหน้าทั้งหมด
-    const pageCount = Math.ceil(Products.length / rowsPerPage);
-
 
     return (
         <div>
@@ -603,254 +528,20 @@ const WaterSystem = () => {
 
                 </div>
                 {/* Table */}
-                <div className="overflow-hidden w-full rounded-xl border mt-5 border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-                    <div className="max-w-full overflow-x-auto">
-                        <div className="min-w-[1102px]">
-                            <Table>
-                                {/* Table Header */}
-                                <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
-                                    <TableRow>
-                                        <TableCell
-                                            isHeader
-                                            className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            ลำดับ
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            เลขสินทรัพย์
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            ชื่อสินทรัพย์
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            พนักงานที่ใช้งานสินทรัพย์
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            แผนกที่ใช้งานสินทรัพย์
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            ราคาสินทรัพย์
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            รูปภาพสินทรัพย์
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            วันที่เพิ่มสินทรัพย์
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            วันที่แก้ไขสินทรัพย์
-                                        </TableCell>
-                                        {roleUser === 'admin' && (
-                                            <TableCell
-                                                isHeader
-                                                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                            >
-                                                แก้ไข
-                                            </TableCell>
-                                        )}
-                                        {roleUser === 'admin' && (
-                                            <TableCell
-                                                isHeader
-                                                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                            >
-                                                ลบ
-                                            </TableCell>
-                                        )}
-
-                                    </TableRow>
-                                </TableHeader>
-
-                                {/* Table Body */}
-                                <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                                    {currentRows.length > 0 ? (
-                                        currentRows.map((product, index) => {
-                                            // หาค่าจาก upd ที่ตรงกับ product.id
-                                            const updatedProduct = upd.find(item => item.id === product.id);
-
-                                            return (
-                                                <TableRow key={product.id}>
-                                                    <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                        {indexOfFirstRow + index + 1}
-                                                    </TableCell>
-                                                    <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                        {editingRowId === product.id ? (
-                                                            <input
-                                                                type="text"
-                                                                value={getEditingValue(product.id, 'product_id', product.product_id)}
-                                                                onChange={(e) => handleUpdateField(product.id, 'product_id', e.target.value)}
-                                                                className="w-full px-2 py-1 border rounded"
-                                                            />
-                                                        ) : (
-                                                            updatedProduct ? updatedProduct.product_id : product.product_id
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                        {editingRowId === product.id ? (
-                                                            <input
-                                                                type="text"
-                                                                value={getEditingValue(product.id, 'product_name', product.product_name)}
-                                                                onChange={(e) => handleUpdateField(product.id, 'product_name', e.target.value)}
-                                                                className="w-full px-2 py-1 border rounded"
-                                                            />
-                                                        ) : (
-                                                            updatedProduct ? updatedProduct.product_name : product.product_name
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                        {editingRowId === product.id ? (
-                                                            <input
-                                                                type="text"
-                                                                value={getEditingValue(product.id, 'user_used', product.user_used)}
-                                                                onChange={(e) => handleUpdateField(product.id, 'user_used', e.target.value)}
-                                                                className="w-full px-2 py-1 border rounded"
-                                                            />
-                                                        ) : (
-                                                            updatedProduct ? updatedProduct.user_used : product.user_used
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                        {editingRowId === product.id ? (
-                                                            <input
-                                                                type="text"
-                                                                value={getEditingValue(product.id, 'department', product.department)}
-                                                                onChange={(e) => handleUpdateField(product.id, 'department', e.target.value)}
-                                                                className="w-full px-2 py-1 border rounded"
-                                                            />
-                                                        ) : (
-                                                            updatedProduct ? updatedProduct.department : product.department
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                        {editingRowId === product.id ? (
-                                                            <input
-                                                                type="number"
-                                                                value={getEditingValue(product.id, 'price', product.price)}
-                                                                onChange={(e) => handleUpdateField(product.id, 'price', Number(e.target.value))}
-                                                                className="w-full px-2 py-1 border rounded"
-                                                            />
-                                                        ) : (
-                                                            updatedProduct ? updatedProduct.price : product.price
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell className="px-5 py-4 sm:px-6 text-start">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 overflow-hidden rounded-full">
-                                                                <img
-                                                                    src={product.image}
-                                                                    alt="product-image"
-                                                                    className="object-cover w-full h-full"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                        {dayjs(product.create_date).tz('Asia/Bangkok').format('D MMMM YYYY HH:mm')}
-                                                    </TableCell>
-                                                    <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                        {dayjs(product.update_date).tz('Asia/Bangkok').format('D MMMM YYYY HH:mm')}
-                                                    </TableCell>
-                                                    {roleUser === 'admin' && (
-                                                        <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                            {editingRowId === product.id ? (
-                                                                <div className="flex gap-2">
-                                                                    <Save
-                                                                        onClick={() => setEditingRowId(null)}
-                                                                        className="cursor-pointer text-green-600"
-                                                                    />
-                                                                    <Cancel
-                                                                        onClick={() => handleCancelEdit(product)}
-                                                                        className="cursor-pointer text-red-600"
-                                                                    />
-                                                                </div>
-                                                            ) : (
-                                                                <Edit
-                                                                    onClick={() => handleStartEdit(product)}
-                                                                    className="cursor-pointer"
-                                                                />
-                                                            )}
-                                                        </TableCell>
-                                                    )}
-                                                    {roleUser === 'admin' && (
-                                                        <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                            <Delete
-                                                                className="cursor-pointer hover:text-red-600"
-                                                                onClick={() => handleDelete(product.id)}
-                                                            />
-                                                        </TableCell>
-                                                    )}
-
-                                                </TableRow>
-                                            );
-                                        })
-                                    ) : (
-                                        <TableRow>
-                                            <TableCell colSpan={11} className="px-4 py-8 text-center text-gray-500 text-theme-sm dark:text-gray-400">
-                                                ไม่พบข้อมูลที่ค้นหา
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
-
-                            {/* Pagination */}
-                            <div className="mt-6 mb-3 w-full gap-4 flex items-center justify-between">
-                                <Pagination
-                                    className='w-1/2 ml-5'
-                                    count={pageCount}
-                                    page={currentPage}
-                                    onChange={handlePageChange}
-                                    sx={{
-                                        "& .MuiPaginationItem-root": {
-                                            color: "#009A3E",
-                                        },
-                                        "& .Mui-selected": {
-                                            backgroundColor: "#009A3E !important",
-                                            color: "#fff",
-                                        },
-                                    }}
-                                />
-                                {currentRows && currentRows.length > 0 && roleUser === 'admin' && (
-                                    <button
-                                        type='submit'
-                                        onClick={handleSaveAllChanges}
-                                        disabled={upd.length === 0}
-                                        className={`${upd.length === 0 ? 'cursor-not-allowed opacity-50 w-full h-12 text-center mr-4 max-sm:w-[10%] max-lg:w-[15%] min-lg:w-[15%] px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-[#009A3E] shadow-theme-xs'
-                                            : 'cursor-pointer w-full h-12 text-center mr-4 max-sm:w-[10%] max-lg:w-[15%] min-lg:w-[15%] px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-[#009A3E] shadow-theme-xs hover:bg-[#7FBA20]'} `}
-
-                                    >บันทึก
-                                    </button>
-                                )
-                                }
-
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
+                <ProductTable
+                    products={filteredProducts}
+                    currentPage={currentPage}
+                    setCurrentPage={setCurrentPage}
+                    rowsPerPage={rowsPerPage}
+                    roleUser={roleUser}
+                    editingRowId={editingRowId}
+                    setEditingRowId={setEditingRowId}
+                    upd={upd}
+                    setUpd={setUpd}
+                    handleDelete={handleDelete}
+                    handleSaveAllChanges={handleSaveAllChanges}
+                    countProduct={countProduct}
+                />
                 {/* Modal Form */}
                 <Modal isOpen={isOpen} onClose={closeModal} className={`lg:min-w-[720px] m-4 max-h-[640px] overflow-y-auto`}>
                     <div className="content mt-3">

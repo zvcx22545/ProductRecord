@@ -3,8 +3,20 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
-import NotificationDropdown from "../components/header/NotificationDropdown";
+// import NotificationDropdown from "../components/header/NotificationDropdown";
 import UserDropdown from "../components/header/UserDropdown";
+import axios from "axios";
+
+interface User {
+  user_id: number;
+  first_name: string;
+  last_name: string;
+  position: string;
+  role: string;
+  department: string;
+  password: string;
+  profile_image: string;
+}
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
@@ -39,6 +51,26 @@ const AppHeader: React.FC = () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  const [userProfile, setUserProfile] = useState<User | null>(null);
+
+  const user_id = sessionStorage.getItem('user_id')
+
+  useEffect(() => {
+    (async () => {
+      try{
+        console.log('user_id is', user_id)
+        const {data} = await axios.get(`http://localhost:8000/api/authen/getUserByid/${user_id}`)
+        if (data.status === true) {
+          console.log("set data -------*", data.row)
+        setUserProfile(data.row)
+        }
+        
+      } catch (error) {
+        console.log("error to get profile", error)
+      }
+    })();
+  },[])
 
   return (
     <header className="sticky top-0 flex w-full bg-white border-gray-200 z-100 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
@@ -84,24 +116,27 @@ const AppHeader: React.FC = () => {
           </button>
 
           <Link to="/" className="lg:hidden">
-          <div className="flex items-center justify-center gap-2">
-            <img
-                className="dark:hidden max-sm:w-[40px]"
+            <div className="flex items-center dark:hidden justify-center gap-2">
+              <img
+                className=" max-sm:w-[40px]"
                 src="/images/logo/company.png"
                 alt="Logo"
                 width={60}
                 height={40}
               />
               <div className="max-sm:text-xl text-3xl font-bold">Sincere</div>
-          </div>
-            
-            <img
-                className=" hidden dark:block"
+            </div>
+            <div className=" hidden dark:flex  items-center justify-center gap-2">
+
+              <img
+                className="  max-sm:w-[40px]"
                 src="/images/logo/company.png"
                 alt="Logo"
-                width={150}
+                width={60}
                 height={40}
               />
+              <div className="hidden dark:block max-sm:text-xl text-white text-3xl font-bold">Sincere</div>
+            </div>
           </Link>
 
           <button
@@ -160,19 +195,18 @@ const AppHeader: React.FC = () => {
           </div> */}
         </div>
         <div
-          className={`${
-            isApplicationMenuOpen ? "flex" : "hidden"
-          } items-center justify-between w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}
+          className={`${isApplicationMenuOpen ? "flex" : "hidden"
+            } items-center justify-between w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}
         >
           <div className="flex items-center gap-2 2xsm:gap-3">
             {/* <!-- Dark Mode Toggler --> */}
             <ThemeToggleButton />
             {/* <!-- Dark Mode Toggler --> */}
-            <NotificationDropdown />
+            {/* <NotificationDropdown /> */}
             {/* <!-- Notification Menu Area --> */}
           </div>
           {/* <!-- User Area --> */}
-          <UserDropdown />
+          <UserDropdown userProfile = {userProfile}/>
         </div>
       </div>
     </header>
