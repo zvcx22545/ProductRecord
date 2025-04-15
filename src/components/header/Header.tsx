@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ThemeToggleButton } from "../common/ThemeToggleButton";
 import NotificationDropdown from "./NotificationDropdown";
-import UserDropdown from "./UserDropdown";
+// import UserDropdown from "./UserDropdown";
 import { Link } from "react-router";
 
 // Define the interface for the props
@@ -158,7 +158,7 @@ const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
             {/* <!-- Notification Menu Area --> */}
           </div>
           {/* <!-- User Area --> */}
-          <UserDropdown />
+          {/* <UserDropdown /> */}
         </div>
       </div>
     </header>

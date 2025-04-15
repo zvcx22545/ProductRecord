@@ -70,7 +70,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
     const pageCount = Math.ceil(products.length / rowsPerPage);
 
     // Handle page change
-    const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
         setCurrentPage(value);
     };
 
