@@ -1,5 +1,4 @@
 import PageMeta from '../../components/common/PageMeta';
-import PageBreadcrumb from '../../components/common/PageBreadCrumb';
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -9,7 +8,9 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/th';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import ProductHome from './ProductHome';
+import ProductHome from '../Forms/ProductHome';
+import { Link } from "react-router";
+import { ChevronLeftIcon } from "../../icons";
 
 interface Product_Type {
     value: string | string[];
@@ -42,7 +43,7 @@ interface EditingProduct {
     add_by_user?: string;
 }
 
-const HomePageForm = () => {
+const LoginSearch = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 6;
     const [upd, setUpd] = useState<EditingProduct[]>([]);
@@ -51,7 +52,7 @@ const HomePageForm = () => {
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
     const [roleUser, setRoleUser] = useState<string>('');
     const [countProduct, setCountProduct] = useState<number>(0);
-    
+
     // States for search dropdown
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [showDropdown, setShowDropdown] = useState<boolean>(false);
@@ -63,7 +64,7 @@ const HomePageForm = () => {
     dayjs.extend(utc);
     dayjs.extend(timezone);
     dayjs.locale('th');
-    
+
     // ข้อมูลประเภทสินทรัพย์
     const productType: Product_Type[] = [
         {
@@ -103,7 +104,7 @@ const HomePageForm = () => {
                 setShowDropdown(false);
             }
         };
-        
+
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
@@ -127,21 +128,24 @@ const HomePageForm = () => {
                 isManualSearch.current = false; // reset
                 return;
             }
-    
+
             if (productID.length <= 0) {
                 setSuggestions([]);
                 setShowDropdown(false);
                 return;
             }
-    
+
             setIsLoading1(true);
             setIsLoading(true);
-    
+
             try {
-                const { data } = await axios.post('https://product-record-backend.vercel.app/api/product/getSuggestions', {
-                    query: productID
+                const safeInput = productID.replace(/[^\w\s\-().]/gi, ''); // ตัดอักขระนอกเหนือจากที่อนุญาต
+
+                const { data } = await axios.post('http://localhost:8000/api/product/getSuggestions', {
+                    query: safeInput
                 });
-    
+                console.log('Response from API:', data);
+
                 if (data.status === 'success' && data.suggestions) {
                     setSuggestions(data.suggestions);
                     setShowDropdown(data.suggestions.length > 0);
@@ -157,16 +161,15 @@ const HomePageForm = () => {
                 setIsLoading(false);
             }
         };
-    
+
         const timeoutId = setTimeout(() => {
             fetchSuggestions();
         }, 200);
-    
+
         return () => clearTimeout(timeoutId);
     }, [productID]);
-    
-    
 
+    
     const handleDelete = async (productId: number) => {
         try {
             // Ask for confirmation before deleting
@@ -181,7 +184,7 @@ const HomePageForm = () => {
 
             // If confirmed, proceed with the deletion
             if (result.isConfirmed) {
-                const response = await axios.delete(`https://product-record-backend.vercel.app/api/product/deleteProduct/${productId}`);
+                const response = await axios.delete(`http://localhost:8000/api/product/deleteProduct/${productId}`);
 
                 if (response.data.status === 'success') {
                     Swal.fire('สำเร็จ', 'ทำการลบสินทรัพเสร็จสิ้น', 'success');
@@ -243,9 +246,9 @@ const HomePageForm = () => {
                     }
                 }
             }
-            
+
             // ส่งข้อมูลที่แก้ไขไปยัง API
-            const response = await axios.post('https://product-record-backend.vercel.app/api/product/update-Product', { products: upd });
+            const response = await axios.post('http://localhost:8000/api/product/update-Product', { products: upd });
 
             if (response.data.status === 'success') {
                 Swal.fire('สำเร็จ', 'อัพเดทข้อมูลเรียบร้อยแล้ว', 'success');
@@ -283,10 +286,10 @@ const HomePageForm = () => {
     const handleSearchProductById = async (id: string = productID) => {
         try {
             isManualSearch.current = true; // <- ตั้งตรงนี้ก่อนยิง API
-            const { data } = await axios.post('https://product-record-backend.vercel.app/api/product/getProduct_ByProductID', {
+            const { data } = await axios.post('http://localhost:8000/api/product/getProduct_ByProductID', {
                 product_id: id
             });
-    
+
             if (data.status === 'success') {
                 setFilteredProducts(data.product ? data.product : []);
                 setCountProduct(data.product.length);
@@ -303,13 +306,14 @@ const HomePageForm = () => {
             setShowDropdown(false);
         }
     };
-    
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         handleSearchProductById();
     };
 
     const handleSuggestionClick = (suggestion: string) => {
+        console.log("clicked suggestion:", suggestion)
         setProductID(suggestion);
         setShowDropdown(false);
         handleSearchProductById(suggestion);
@@ -338,16 +342,23 @@ const HomePageForm = () => {
         );
     };
 
-
     return (
         <div>
-            <PageMeta title="Home Page"
+            <PageMeta title="Sincere"
                 description="This is Page for showing and add data for main page"
             />
-            <PageBreadcrumb pageTitle="หน้าแรก" />
-            <div className="content">
+            <div className="content p-6">
                 <div className="flex items-center justify-between">
-                    <div className="relative" ref={searchRef}>
+                    <div className="w-full max-w-md ml-4 mb-5 sm:pt-4">
+                        <Link
+                            to="/signin"
+                            className="inline-flex items-center text-sm p-3 rounded-full bg-[#009A3E] text-white transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                        >
+                            <ChevronLeftIcon className="size-5" />
+                            ไปยังหน้าเข้าสู่ระบบ
+                        </Link>
+                    </div>
+                    <div className="relative max-sm:hidden" ref={searchRef}>
                         <form onSubmit={handleSubmit}>
                             <div className="relative">
                                 <button className="absolute -translate-y-1/2 left-4 top-1/2">
@@ -368,21 +379,23 @@ const HomePageForm = () => {
                                     </svg>
                                 </button>
                                 <input
+                                    id="product-id"
+                                    name="product-id"
                                     value={productID}
                                     onChange={(e) => setProductID(e.target.value)}
                                     type="text"
                                     placeholder="ค้นหาสินทรัพย์..."
                                     className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px]"
                                 />
-                                <button 
-                                    className="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400" 
+                                <button
+                                    className="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400"
                                     type='submit'
                                 >
                                     <span> ค้นหา </span>
                                 </button>
                             </div>
                         </form>
-                        
+
                         {/* Loading indicator */}
                         {isLoading && (
                             <div className="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg dark:bg-gray-800 xl:w-[430px]">
@@ -397,22 +410,24 @@ const HomePageForm = () => {
                                 </div>
                             </div>
                         )}
-                        
+
                         {/* Dropdown suggestions */}
                         {!isLoading && showDropdown && suggestions.length > 0 && (
                             <div className="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg dark:bg-gray-800 xl:w-[430px]">
+                                {Array.isArray(suggestions) && suggestions.length > 0 && (
+
                                 <ul className="max-h-60 overflow-auto rounded-md py-1 text-base leading-6">
                                     {suggestions.map((suggestion, index) => (
-                                        <li 
+                                        <li
                                             key={index}
                                             className="cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                            onClick={() => handleSuggestionClick(suggestion)}
+                                            onMouseDown={() => handleSuggestionClick(suggestion)}
                                         >
                                             <div className="flex items-center">
-                                                <svg 
-                                                    className="mr-2 fill-gray-500 dark:fill-gray-400" 
-                                                    width="16" 
-                                                    height="16" 
+                                                <svg
+                                                    className="mr-2 fill-gray-500 dark:fill-gray-400"
+                                                    width="16"
+                                                    height="16"
                                                     viewBox="0 0 20 20"
                                                 >
                                                     <path d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363Z" />
@@ -424,9 +439,11 @@ const HomePageForm = () => {
                                         </li>
                                     ))}
                                 </ul>
+                                )}
+
                             </div>
                         )}
-                        
+
                         {/* No results message */}
                         {!isLoading && showDropdown && suggestions.length === 0 && productID.length > 0 && (
                             <div className="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg dark:bg-gray-800 xl:w-[430px]">
@@ -437,7 +454,98 @@ const HomePageForm = () => {
                         )}
                     </div>
                 </div>
-                
+                <div className="relative sm:hidden" ref={searchRef}>
+                    <form onSubmit={handleSubmit}>
+                        <div className="relative">
+                            <button className="absolute -translate-y-1/2 left-4 top-1/2">
+                                <svg
+                                    className="fill-gray-500 dark:fill-gray-400"
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 20 20"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        clipRule="evenodd"
+                                        d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
+                                        fill=""
+                                    />
+                                </svg>
+                            </button>
+                            <input
+                                id="product-id"
+                                name="product-id"
+                                value={productID}
+                                onChange={(e) => setProductID(e.target.value)}
+                                type="text"
+                                placeholder="ค้นหาสินทรัพย์..."
+                                className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px]"
+                            />
+                            <button
+                                className="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400"
+                                type='submit'
+                            >
+                                <span> ค้นหา </span>
+                            </button>
+                        </div>
+                    </form>
+
+                    {/* Loading indicator */}
+                    {isLoading && (
+                        <div className="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg dark:bg-gray-800 xl:w-[430px]">
+                            <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                                <div className="flex items-center">
+                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    กำลังค้นหา...
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Dropdown suggestions */}
+                    {!isLoading && showDropdown && suggestions.length > 0 && (
+                        <div className="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg dark:bg-gray-800 xl:w-[430px]">
+                            <ul className="max-h-60 overflow-auto rounded-md py-1 text-base leading-6">
+                                {suggestions.map((suggestion, index) => (
+                                    <li
+                                        key={index}
+                                        className="cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                        onClick={() => handleSuggestionClick(suggestion)}
+                                    >
+                                        <div className="flex items-center">
+                                            <svg
+                                                className="mr-2 fill-gray-500 dark:fill-gray-400"
+                                                width="16"
+                                                height="16"
+                                                viewBox="0 0 20 20"
+                                            >
+                                                <path d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363Z" />
+                                            </svg>
+                                            <span className="text-sm text-gray-800 dark:text-white/90">
+                                                {highlightMatch(suggestion, productID)}
+                                            </span>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {/* No results message */}
+                    {!isLoading && showDropdown && suggestions.length === 0 && productID.length > 0 && (
+                        <div className="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg dark:bg-gray-800 xl:w-[430px]">
+                            <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                                ไม่พบข้อมูลสินทรัพย์ "{productID}"
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 {/* Table */}
                 <ProductHome
                     products={filteredProducts}
@@ -459,4 +567,4 @@ const HomePageForm = () => {
     );
 };
 
-export default HomePageForm;
+export default LoginSearch;

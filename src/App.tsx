@@ -27,6 +27,7 @@ import { ScrollToTop } from "./components/common/ScrollToTop";
 import HomePageForm from "./pages/Forms/HomePageForm";
 import { ProtectedRoute } from "./components/common/Protect";
 import Electrical from "./pages/Forms/Electrical";
+import LoginSearch from "./pages/search/LoginSearch";
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
         <ScrollToTop />
         <Routes>
           {/* Auth Layout */}
+          <Route path="/search-signin" element={<LoginSearch />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
 

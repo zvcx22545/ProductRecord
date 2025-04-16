@@ -7,7 +7,7 @@ export const ProtectedRoute: React.FC = () => {
   const expiresAt = sessionStorage.getItem("expiresAt");
 
   if (!token || !expiresAt) {
-    return <Navigate to="/signin" replace />;
+    return <Navigate to="/search-signin" replace />;
   }
 
   const isExpired = dayjs().isAfter(dayjs(expiresAt));
