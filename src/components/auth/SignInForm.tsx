@@ -84,7 +84,7 @@ export default function SignInForm() {
       <div className="w-full max-w-md ml-4 mb-5 sm:pt-4">
         <Link
           to="/search-signin"
-          className="inline-flex items-center text-sm p-3 rounded-full bg-[#009A3E] text-white transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+          className="inline-flex items-center text-sm p-3 rounded-full bg-[#009A3E] text-white transition-colors hover:text-gray-700 dark:hover:text-gray-300"
         >
           <ChevronLeftIcon className="size-5" />
           ไปยังหน้าค้นหาสินทรัพย์

@@ -177,10 +177,10 @@ export default function SignUpForm() {
       <div className="w-full max-w-md ml-4 mb-5 sm:pt-4">
         <Link
           to="/"
-          className="inline-flex items-center text-sm p-3 rounded-full bg-[#009A3E] text-white transition-colors hover:text-white dark:text-gray-400 dark:hover:text-gray-300 hover:bg-[#7FBA20]"
+          className="inline-flex items-center text-sm p-3 rounded-full bg-[#009A3E] text-white transition-colors hover:text-white dark:hover:text-gray-300 hover:bg-[#7FBA20]"
         >
           <ChevronLeftIcon className="size-5" />
-          Back to Home
+          ไปยังหน้าเข้าสู่ระบบ
         </Link>
       </div>
 
