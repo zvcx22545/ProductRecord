@@ -17,6 +17,8 @@ interface Product {
     user_used: string;
     product_id: string;
     price: number;
+    product_num: string;
+    product_type: string;
     department: string;
     image: string;
     create_date: Date;
@@ -29,11 +31,11 @@ interface EditingProduct {
     user_used: string;
     product_id: string;
     price: number;
+    product_number: string;
     department: string;
     product_type?: string;
     add_by_user?: string;
 }
-
 interface ProductTableProps {
     products: Product[];
     currentPage: number;
@@ -90,8 +92,9 @@ const ProductTable: React.FC<ProductTableProps> = ({
                 user_used: product.user_used,
                 product_id: product.product_id,
                 price: product.price,
+                product_number: product.product_num,
                 department: product.department,
-                product_type: 'CO',
+                product_type: product.product_type,
                 add_by_user: user_id
             };
             setUpd([...upd, newEditItem]);
@@ -176,6 +179,12 @@ const ProductTable: React.FC<ProductTableProps> = ({
                                     className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                 >
                                     ราคาสินทรัพย์
+                                </TableCell>
+                                <TableCell
+                                    isHeader
+                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                >
+                                    จำนวนสินทรัพย์
                                 </TableCell>
                                 <TableCell
                                     isHeader
@@ -284,6 +293,26 @@ const ProductTable: React.FC<ProductTableProps> = ({
                                                     />
                                                 ) : (
                                                     updatedProduct ? updatedProduct.price : product.price
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="px-4 mx-auto py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                {editingRowId === product.id ? (
+                                                    <input
+                                                        type="text"
+                                                        value={getEditingValue(product.id, 'product_number', product.product_num)}
+                                                        onChange={(e) => {
+                                                            const inputValue = e.target.value;
+                                                            const numericValue = Number(inputValue);
+                                                            
+                                                            // อนุญาตเฉพาะตัวเลขที่ไม่ติดลบ
+                                                            if (!isNaN(numericValue) && numericValue >= 0) {
+                                                                handleUpdateField(product.id, 'product_number', numericValue);
+                                                            }
+                                                        }}
+                                                        className="w-full px-2 py-1 border rounded"
+                                                    />
+                                                ) : (
+                                                    updatedProduct ? updatedProduct.product_number : product.product_num
                                                 )}
                                             </TableCell>
                                             <TableCell className="px-5 py-4 sm:px-6 text-start">

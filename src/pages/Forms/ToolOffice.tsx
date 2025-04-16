@@ -29,6 +29,8 @@ interface Product {
     user_used: string;
     product_id: string;
     price: number;
+    product_num: string;
+    product_type: string;
     department: string;
     image: string;
     create_date: Date;
@@ -41,6 +43,7 @@ interface EditingProduct {
     user_used: string;
     product_id: string;
     price: number;
+    product_number: string;
     department: string;
     product_type?: string;
     add_by_user?: string;
@@ -57,6 +60,7 @@ const ToolOffice = () => {
     const [employeeID, setEmployeeID] = useState('');
     const [productId, setProductId] = useState('');
     const [productPrice, setProductPrice] = useState('');
+    const [product_number, setProductNumber] = useState('');
     const [productDepartment, setProductDepartment] = useState('');
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
     const [Products, setProducts] = useState<Product[]>([])
@@ -68,7 +72,8 @@ const ToolOffice = () => {
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
     const [roleUser, setRoleUser] = useState<string>('');
     const [countProduct, setCountProduct] = useState<number>(0);
-    
+    const [isLoading, setLoading] = useState(false);
+
 
     dayjs.extend(utc)
     dayjs.extend(timezone)
@@ -206,6 +211,7 @@ const ToolOffice = () => {
         setEmployeeID('');
         setProductId('');
         setProductPrice('');
+        setProductNumber('');
         setProductDepartment('');
         setProductTypeValue('');
         setCalendar(null);
@@ -246,6 +252,7 @@ const ToolOffice = () => {
         if (!employeeName.trim()) errors.employeeName = "กรุณาระบุชื่อผู้ใช้สินทรัพย์";
         if (!productId.trim()) errors.productId = "กรุณาระบุเลขสินทรัพย์";
         if (!productPrice.trim()) errors.productPrice = "กรุณาระบุราคาสินทรัพย์";
+        if (!product_number) errors.product_number = "กรุณาระบุจำนวนสินทรัพย์";
         if (!productDepartment.trim()) errors.productDepartment = "กรุณาระบุแผนกที่ใช้งาน";
         if (!productTypeValue) errors.productType = "กรุณาเลือกประเภทสินทรัพย์";
         if (!calendar) errors.calendar = "กรุณาเลือกวันที่";
@@ -259,36 +266,37 @@ const ToolOffice = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-         if (productId && productId.length >= 2) {
-                    const idPrefix = productId.substring(0, 2).toUpperCase().replace(/[^A-Z]/g, '');
-                    let correctTypeLabel = '';
-                    let matchedTypeCode = '';
-        
-                    for (const type of productType) {
-                        const values = Array.isArray(type.value) ? type.value : [type.value];
-                        correctTypeLabel = type.label;
-        
-                        if (values.includes(idPrefix)) {
-                            correctTypeLabel = type.label;
-                            matchedTypeCode = idPrefix; //ปรับให้ข้อมูลที่จาก dropdown ตรง กับเลขสินทรัพย์ที่กรอก
-                            setProductTypeValue(matchedTypeCode)
-                            break;
-                        }
-                    }
-        
-                    // productTypeValue คือสิ่งที่ผู้ใช้เลือกจาก dropdown
-                    const selectedType = Array.isArray(productTypeValue) ? productTypeValue.find((x) => x === idPrefix)
-                        : productTypeValue === idPrefix
-                            ? productTypeValue
-                            : null;
-        
-                    if (matchedTypeCode !== selectedType) {
-                        return Swal.fire('แจ้งเตือน', `กรุณาเลือกประเภท ( ${correctTypeLabel} )`, 'error');
-                    }
+        if (productId && productId.length >= 2) {
+            const idPrefix = productId.substring(0, 2).toUpperCase().replace(/[^A-Z]/g, '');
+            let correctTypeLabel = '';
+            let matchedTypeCode = '';
+
+            for (const type of productType) {
+                const values = Array.isArray(type.value) ? type.value : [type.value];
+                correctTypeLabel = type.label;
+
+                if (values.includes(idPrefix)) {
+                    correctTypeLabel = type.label;
+                    matchedTypeCode = idPrefix; //ปรับให้ข้อมูลที่จาก dropdown ตรง กับเลขสินทรัพย์ที่กรอก
+                    setProductTypeValue(matchedTypeCode)
+                    break;
                 }
+            }
+
+            // productTypeValue คือสิ่งที่ผู้ใช้เลือกจาก dropdown
+            const selectedType = Array.isArray(productTypeValue) ? productTypeValue.find((x) => x === idPrefix)
+                : productTypeValue === idPrefix
+                    ? productTypeValue
+                    : null;
+
+            if (matchedTypeCode !== selectedType) {
+                return Swal.fire('แจ้งเตือน', `กรุณาเลือกประเภท ( ${correctTypeLabel} )`, 'error');
+            }
+        }
 
         if (validateForm()) {
             try {
+                setLoading(true)
                 const formData = new FormData();
                 const user_id = sessionStorage.getItem('user_id') || '';
 
@@ -297,10 +305,12 @@ const ToolOffice = () => {
                 formData.append('employee_ID', employeeID);
                 formData.append('product_id', productId);
                 formData.append('product_price', productPrice);
+                formData.append('product_number', product_number);
                 formData.append('product_department', productDepartment);
                 formData.append('product_type', Array.isArray(productTypeValue) ? productTypeValue[0] : productTypeValue);
                 formData.append('calendar', calendar?.toISOString() || '');
                 formData.append('add_by_user', user_id);
+
 
                 if (selectedFile) {
                     formData.append('image', selectedFile);
@@ -346,6 +356,8 @@ const ToolOffice = () => {
                     console.error('Error submitting form:', error);
                     Swal.fire('Error', error.response?.data?.message || 'Something went wrong', 'error');
                 }
+            } finally {
+                setLoading(false)
             }
         }
     };
@@ -404,7 +416,7 @@ const ToolOffice = () => {
                 setEditingRowId(null);
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
-                        ? ['TO', 'MC', 'EQ'].some(code => item.value.includes(code)) 
+                        ? ['TO', 'MC', 'EQ'].some(code => item.value.includes(code))
                         : ['TO', 'MC', 'EQ'].includes(item.value) // ตรวจสอบว่า type เป็น string หรือไม่
                 );
 
@@ -427,22 +439,22 @@ const ToolOffice = () => {
                 // Now you can safely access response and message
                 const errorMessage = error.response?.data?.message || "กรุณาลองใหม่อีกครั้ง"
                 Swal.fire({
-                  title: "เกิดข้อผิดพลาด!",
-                  text: errorMessage,
-                  icon: "error",
-                  confirmButtonColor: "#d33",
-                  confirmButtonText: "ตกลง",
+                    title: "เกิดข้อผิดพลาด!",
+                    text: errorMessage,
+                    icon: "error",
+                    confirmButtonColor: "#d33",
+                    confirmButtonText: "ตกลง",
                 })
-              } else {
+            } else {
                 // Fallback if error is not an AxiosError
                 Swal.fire({
-                  title: "เกิดข้อผิดพลาด!",
-                  text: "เกิดข้อผิดพลาดในการอัพเดทข้อมูล",
-                  icon: "error",
-                  confirmButtonColor: "#d33",
-                  confirmButtonText: "ตกลง",
+                    title: "เกิดข้อผิดพลาด!",
+                    text: "เกิดข้อผิดพลาดในการอัพเดทข้อมูล",
+                    icon: "error",
+                    confirmButtonColor: "#d33",
+                    confirmButtonText: "ตกลง",
                 })
-              }
+            }
         }
     };
 
@@ -617,6 +629,20 @@ const ToolOffice = () => {
                             </div>
                             <div className="mt-2">
                                 <Label>
+                                    จำนวนสินทรัพย์ <span className='text-error-500'>*</span>
+                                </Label>
+                                <Input
+                                    type='text'
+                                    id='product_number'
+                                    name='product_number'
+                                    placeholder='กรุณาใส่จำนวนสินทรัพย์'
+                                    value={product_number}
+                                    onChange={(e) => setProductNumber(e.target.value)}
+                                />
+                                {formErrors.productPrice && <p className="text-error-500 text-sm mt-1">{formErrors.productPrice}</p>}
+                            </div>
+                            <div className="mt-2">
+                                <Label>
                                     แผนกที่ใช้งานสินทรัพย์ <span className='text-error-500'>*</span>
                                 </Label>
                                 <Input
@@ -665,6 +691,10 @@ const ToolOffice = () => {
                                             value={calendar}
                                             onChange={(e) => setCalendar(e.target.value as Date | null)}
                                             showIcon
+                                            showTime
+                                            hourFormat="24"
+                                            maxDate={new Date()} // ห้ามเลือกวัน/เวลาที่มากกว่าปัจจุบัน
+                                            dateFormat="dd MM yy" // แค่สำหรับ UI ในปฏิทิน
                                         />
                                         {formErrors.calendar && <p className="text-error-500 text-sm mt-1">{formErrors.calendar}</p>}
                                     </div>
@@ -705,16 +735,25 @@ const ToolOffice = () => {
                                 <button
                                     type='submit'
                                     className="text-center mb-4 max-sm:w-[90%] max-lg:w-[50%] min-lg:w-[30%] px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-[#009A3E] shadow-theme-xs hover:bg-[#7FBA20]"
+                                    disabled={isLoading}
                                 >
-                                    บันทึก
+                                    {isLoading ? (
+                                        <span className="loading loading-dots loading-sm mr-2"></span>
+                                    ) : (
+                                        'บันทึก'
+                                    )}
                                 </button>
-                                <button
-                                    type="button"
-                                    onClick={closeModal}
-                                    className="text-center mb-4 max-sm:w-[90%] max-lg:w-[50%] min-lg:w-[30%] px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-red-700 shadow-theme-xs hover:bg-red-500"
-                                >
-                                    ยกเลิก
-                                </button>
+                                {!isLoading && (
+                                    <button
+                                        type="button"
+                                        onClick={closeModal}
+                                        className="text-center mb-4 max-sm:w-[90%] max-lg:w-[50%] min-lg:w-[30%] px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-red-700 shadow-theme-xs hover:bg-red-500"
+                                    >
+                                        ยกเลิก
+                                    </button>
+                                )
+                                }
+
                             </div>
                         </form>
                     </div>
