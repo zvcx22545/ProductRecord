@@ -5,3 +5,48 @@
 .p-inputtext {
     padding: 7px 16px !important;
 }
+
+
+/* เพิ่มในไฟล์ style.css ของคุณ */
+@keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.5;
+      transform: scale(0.8);
+    }
+  }
+  
+  .animate-pulse {
+    animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .delay-0 {
+    animation-delay: 0ms;
+  }
+  
+  .delay-150 {
+    animation-delay: 150ms;
+  }
+  
+  .delay-300 {
+    animation-delay: 300ms;
+  }
+  
+  .delay-450 {
+    animation-delay: 450ms;
+  }
+  
+  .delay-600 {
+    animation-delay: 600ms;
+  }
+  
+  .delay-750 {
+    animation-delay: 750ms;
+  }
+  
+  .delay-900 {
+    animation-delay: 900ms;
+  }

@@ -24,6 +24,7 @@ import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 // import Home from "./pages/Dashboard/Home";
+import HomePageForm from "./pages/Forms/HomePageForm";
 import { ProtectedRoute } from "./components/common/Protect";
 import Electrical from "./pages/Forms/Electrical";
 
@@ -41,8 +42,7 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             {/* Dashboard Layout */}
             <Route element={<AppLayout />}>
-              {/* <Route index path="/" element={<Home />} /> */}
-              <Route index path="/" element={<Machineform />} />
+              <Route index path="/" element={<HomePageForm />} />
 
               {/* Others Page */}
               <Route path="/profile" element={<UserProfiles />} />
