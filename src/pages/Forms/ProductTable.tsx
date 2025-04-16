@@ -1,4 +1,4 @@
-// import React, { useState } from 'react';
+import React, { useState } from 'react';
 import {
     Table,
     TableBody,
@@ -10,6 +10,8 @@ import { Edit, Save, Cancel, Delete } from '@mui/icons-material';
 import Pagination from '@mui/material/Pagination';
 import dayjs from 'dayjs';
 import 'dayjs/locale/th';
+import { useModal } from '../../hooks/useModal';
+import { Modal } from '../../components/ui/modal';
 
 interface Product {
     id: number;
@@ -66,6 +68,8 @@ const ProductTable: React.FC<ProductTableProps> = ({
     countProduct
 }) => {
     // Calculate pagination values
+    const [zoomImage, setZoomImage] = useState<string | null>(null);
+    const { isOpen, openModal, closeModal } = useModal()
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
     const currentRows = products.slice(indexOfFirstRow, indexOfLastRow);
@@ -115,7 +119,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
     // Update field value during editing
     const handleUpdateField = (id: number, field: string, value: string | number) => {
         const existingIndex = upd.findIndex(item => item.id === id);
-        
+
         if (existingIndex !== -1) {
             // Update existing record
             const updatedList = [...upd];
@@ -303,7 +307,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
                                                         onChange={(e) => {
                                                             const inputValue = e.target.value;
                                                             const numericValue = Number(inputValue);
-                                                            
+
                                                             // อนุญาตเฉพาะตัวเลขที่ไม่ติดลบ
                                                             if (!isNaN(numericValue) && numericValue >= 0) {
                                                                 handleUpdateField(product.id, 'product_number', numericValue);
@@ -321,7 +325,12 @@ const ProductTable: React.FC<ProductTableProps> = ({
                                                         <img
                                                             src={product.image}
                                                             alt="product-image"
-                                                            className="object-cover w-full h-full"
+                                                            onClick={() => {
+                                                                setZoomImage(product.image);
+                                                                openModal();
+                                                            }}
+                                                            className="cursor-zoom-in object-cover w-full h-full transition-transform duration-300 hover:scale-110"
+                                                            loading="lazy"
                                                         />
                                                     </div>
                                                 </div>
@@ -397,7 +406,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
                                     type='submit'
                                     onClick={handleSaveAllChanges}
                                     disabled={upd.length === 0}
-                                    className={`${upd.length === 0 
+                                    className={`${upd.length === 0
                                         ? 'cursor-not-allowed opacity-50 w-full h-12 text-center mr-4 max-sm:w-[10%] max-lg:w-[15%] min-lg:w-[15%] px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-[#009A3E] shadow-theme-xs'
                                         : 'cursor-pointer w-full h-12 text-center mr-4 max-sm:w-[10%] max-lg:w-[15%] min-lg:w-[15%] px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-[#009A3E] shadow-theme-xs hover:bg-[#7FBA20]'} `}
                                 >บันทึก
@@ -410,6 +419,27 @@ const ProductTable: React.FC<ProductTableProps> = ({
                             </div>
                         </div>
                     </div>
+                    {zoomImage && (
+                        <Modal isOpen={isOpen} onClose={closeModal} className="lg:min-w-[720px] m-4 max-h-[90vh] overflow-y-auto">
+                            <div className="relative flex justify-center items-center">
+                                {/* <button
+                                onClick={closeModal}
+                                className="absolute top-2 right-2 z-10 text-white bg-black/60 hover:bg-black/80 rounded-full p-2"
+                            >
+                                ✕
+                            </button> */}
+                                {zoomImage && (
+                                    <img
+                                        src={zoomImage}
+                                        alt="zoomed"
+                                        className="w-full h-auto max-h-[75vh] rounded-md shadow-lg object-contain"
+                                        loading="eager"
+                                    />
+                                )}
+                            </div>
+                        </Modal>
+                    )}
+
                 </div>
             </div>
         </div>
