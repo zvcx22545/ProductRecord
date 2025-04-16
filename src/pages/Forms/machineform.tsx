@@ -29,6 +29,8 @@ interface Product {
     user_used: string;
     product_id: string;
     price: number;
+    product_num: string;
+    product_type: string;
     department: string;
     image: string;
     create_date: Date;
@@ -41,6 +43,7 @@ interface EditingProduct {
     user_used: string;
     product_id: string;
     price: number;
+    product_number: string;
     department: string;
     product_type?: string;
     add_by_user?: string;
@@ -57,6 +60,7 @@ const Machineform = () => {
     const [employeeID, setEmployeeID] = useState('');
     const [productId, setProductId] = useState('');
     const [productPrice, setProductPrice] = useState('');
+    const [product_number, setProductNumber] = useState('');
     const [productDepartment, setProductDepartment] = useState('');
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
     const [Products, setProducts] = useState<Product[]>([])
@@ -68,6 +72,7 @@ const Machineform = () => {
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
     const [roleUser, setRoleUser] = useState<string>('');
     const [countProduct, setCountProduct] = useState<number>(0);
+    const [isLoading, setLoading] = useState(false);
 
 
     dayjs.extend(utc)
@@ -147,10 +152,6 @@ const Machineform = () => {
     }, [Products]);
 
     useEffect(() => {
-        console.log("coutProduct", countProduct)
-    }, [countProduct]);
-
-    useEffect(() => {
         console.log("Updated upd array:", upd)
     }, [upd]);
 
@@ -211,6 +212,7 @@ const Machineform = () => {
         setEmployeeID('');
         setProductId('');
         setProductPrice('');
+        setProductNumber('');
         setProductDepartment('');
         setProductTypeValue('');
         setCalendar(null);
@@ -251,6 +253,7 @@ const Machineform = () => {
         if (!employeeName.trim()) errors.employeeName = "กรุณาระบุชื่อผู้ใช้สินทรัพย์";
         if (!productId.trim()) errors.productId = "กรุณาระบุเลขสินทรัพย์";
         if (!productPrice.trim()) errors.productPrice = "กรุณาระบุราคาสินทรัพย์";
+        if (!product_number) errors.product_number = "กรุณาระบุจำนวนสินทรัพย์";
         if (!productDepartment.trim()) errors.productDepartment = "กรุณาระบุแผนกที่ใช้งาน";
         if (!productTypeValue) errors.productType = "กรุณาเลือกประเภทสินทรัพย์";
         if (!calendar) errors.calendar = "กรุณาเลือกวันที่";
@@ -294,6 +297,7 @@ const Machineform = () => {
 
         if (validateForm()) {
             try {
+                setLoading(true)
                 const formData = new FormData();
                 const user_id = sessionStorage.getItem('user_id') || '';
 
@@ -302,6 +306,7 @@ const Machineform = () => {
                 formData.append('employee_ID', employeeID);
                 formData.append('product_id', productId);
                 formData.append('product_price', productPrice);
+                formData.append('product_number', product_number);
                 formData.append('product_department', productDepartment);
                 formData.append('product_type', Array.isArray(productTypeValue) ? productTypeValue[0] : productTypeValue);
                 formData.append('calendar', calendar?.toISOString() || '');
@@ -339,6 +344,7 @@ const Machineform = () => {
                         });
                         setProducts(data.product);
                         setCountProduct(data.product.length)
+                        closeModal()
                         setUpd([]);
                     }
                 } else {
@@ -351,6 +357,8 @@ const Machineform = () => {
                     console.error('Error submitting form:', error);
                     Swal.fire('Error', error.response?.data?.message || 'Something went wrong', 'error');
                 }
+            } finally {
+                setLoading(false)
             }
         }
     };
@@ -450,20 +458,6 @@ const Machineform = () => {
               }
         }
     };
-
-    // หาข้อมูลที่กำลังแก้ไข
-    // const getEditingValue = (id: number, field: string, defaultValue: any) => {
-    //     const editingItem = upd.find(item => item.id === id);
-    //     if (editingItem && editingItem[field as keyof EditingProduct] !== undefined) {
-    //         return editingItem[field as keyof EditingProduct];
-    //     }
-    //     return defaultValue;
-    // };
-
-    // pagination
-    // const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
-    //     setCurrentPage(value);
-    // }
 
     useEffect(() => {
         if (!searchTerm.trim()) {
@@ -645,6 +639,21 @@ const Machineform = () => {
                                 />
                                 {formErrors.productPrice && <p className="text-error-500 text-sm mt-1">{formErrors.productPrice}</p>}
                             </div>
+
+                            <div className="mt-2">
+                                <Label>
+                                    จำนวนสินทรัพย์ <span className='text-error-500'>*</span>
+                                </Label>
+                                <Input
+                                    type='text'
+                                    id='product_number'
+                                    name='product_number'
+                                    placeholder='กรุณาใส่จำนวนสินทรัพย์'
+                                    value={product_number}
+                                    onChange={(e) => setProductNumber(e.target.value)}
+                                />
+                                {formErrors.productPrice && <p className="text-error-500 text-sm mt-1">{formErrors.productPrice}</p>}
+                            </div>
                             <div className="mt-2">
                                 <Label>
                                     แผนกที่ใช้งานสินทรัพย์ <span className='text-error-500'>*</span>
@@ -695,6 +704,10 @@ const Machineform = () => {
                                             value={calendar}
                                             onChange={(e) => setCalendar(e.target.value as Date | null)}
                                             showIcon
+                                            showTime
+                                            hourFormat="24"
+                                            maxDate={new Date()} // ห้ามเลือกวัน/เวลาที่มากกว่าปัจจุบัน
+                                            dateFormat="dd MM yy" // แค่สำหรับ UI ในปฏิทิน
                                         />
                                         {formErrors.calendar && <p className="text-error-500 text-sm mt-1">{formErrors.calendar}</p>}
                                     </div>
@@ -732,19 +745,28 @@ const Machineform = () => {
                             </Label>
 
                             <div className="flex justify-center items-center gap-2 mt-8">
-                                <button
-                                    type='submit'
-                                    className="text-center mb-4 max-sm:w-[90%] max-lg:w-[50%] min-lg:w-[30%] px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-[#009A3E] shadow-theme-xs hover:bg-[#7FBA20]"
-                                >
-                                    บันทึก
-                                </button>
-                                <button
+                            <button
+    type='submit'
+    className="text-center mb-4 max-sm:w-[90%] max-lg:w-[50%] min-lg:w-[30%] px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-[#009A3E] shadow-theme-xs hover:bg-[#7FBA20]"
+    disabled={isLoading}
+>
+    {isLoading ? (
+        <span className="loading loading-dots loading-sm mr-2"></span>
+    ) : (
+        'บันทึก'
+    )}
+</button>
+                                {!isLoading && (
+                                    <button
                                     type="button"
                                     onClick={closeModal}
                                     className="text-center mb-4 max-sm:w-[90%] max-lg:w-[50%] min-lg:w-[30%] px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-red-700 shadow-theme-xs hover:bg-red-500"
                                 >
                                     ยกเลิก
                                 </button>
+                                )
+}
+                                
                             </div>
                         </form>
                     </div>
