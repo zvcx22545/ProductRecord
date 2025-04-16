@@ -34,7 +34,7 @@ export default function SignInForm() {
     e.preventDefault()
     try {
 
-      const response = await axios.post("http://localhost:8000/api/authen/login", formData);
+      const response = await axios.post("https://product-record-backend.vercel.app/api/authen/login", formData);
       if (response.data && response.data.status === true && response.data.token) {
 
         sessionStorage.setItem("token", response.data.token);
@@ -83,11 +83,11 @@ export default function SignInForm() {
     <div className="flex flex-col flex-1">
       <div className="w-full max-w-md ml-4 mb-5 sm:pt-4">
         <Link
-          to="/"
+          to="/search-signin"
           className="inline-flex items-center text-sm p-3 rounded-full bg-[#009A3E] text-white transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
         >
           <ChevronLeftIcon className="size-5" />
-          กลับไปยังหน้าหลัก
+          ไปยังหน้าค้นหาสินทรัพย์
         </Link>
       </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
