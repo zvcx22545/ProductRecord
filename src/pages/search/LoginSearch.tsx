@@ -347,7 +347,7 @@ const LoginSearch = () => {
             <PageMeta title="Sincere"
                 description="This is Page for showing and add data for main page"
             />
-            <div className="content p-6">
+            <div className="content p-6 h-screen">
                 <div className="flex items-center justify-between">
                     <div className="w-full max-w-md ml-4 mb-5 sm:pt-4">
                         <Link
