@@ -500,7 +500,7 @@ const Machineform = () => {
 
     return (
         <div>
-            <PageMeta title="Computer Page"
+            <PageMeta title="Program Page"
                 description="This is Page for showing and add data for machine"
             />
             <PageBreadcrumb pageTitle="อุปกรณ์คอมพิวเตอร์โน๊คบุ๊ค" />

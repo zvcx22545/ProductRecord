@@ -486,7 +486,7 @@ const OfficeDecoration = () => {
 
     return (
         <div>
-            <PageMeta title="Computer Page"
+            <PageMeta title="Office Decoration Page"
                 description="This is Page for showing and add data for machine"
             />
             <PageBreadcrumb pageTitle="อุปกรณ์คอมพิวเตอร์โน๊คบุ๊ค" />
