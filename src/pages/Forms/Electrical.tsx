@@ -491,7 +491,7 @@ const Electrical = () => {
             <PageMeta title="Electrical Page"
                 description="This is Page for showing and add data for machine"
             />
-            <PageBreadcrumb pageTitle="อุปกรณ์คอมพิวเตอร์โน๊คบุ๊ค" />
+            <PageBreadcrumb pageTitle="ระบบไฟฟ้า" />
             <div className="content">
                 <div className="flex items-center justify-between">
                      <div className="max-sm:w-full">

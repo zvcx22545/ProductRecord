@@ -47,7 +47,7 @@ const HomePageForm = () => {
     const rowsPerPage = 6;
     const [upd, setUpd] = useState<EditingProduct[]>([]);
     const [editingRowId, setEditingRowId] = useState<number | null>(null);
-    const [productID, setProductID] = useState<string>('');
+    const [searchTerm, setSearchTerm] = useState<string>('');
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
     const [roleUser, setRoleUser] = useState<string>('');
     const [countProduct, setCountProduct] = useState<number>(0);
@@ -128,7 +128,7 @@ const HomePageForm = () => {
                 return;
             }
     
-            if (productID.length <= 0) {
+            if (searchTerm.length <= 0) {
                 setSuggestions([]);
                 setShowDropdown(false);
                 return;
@@ -139,7 +139,7 @@ const HomePageForm = () => {
     
             try {
                 const { data } = await axios.post('https://product-record-backend.vercel.app/api/product/getSuggestions', {
-                    query: productID
+                    query: searchTerm
                 });
     
                 if (data.status === 'success' && data.suggestions) {
@@ -163,7 +163,7 @@ const HomePageForm = () => {
         }, 200);
     
         return () => clearTimeout(timeoutId);
-    }, [productID]);
+    }, [searchTerm]);
     
     
 
@@ -186,7 +186,9 @@ const HomePageForm = () => {
                 if (response.data.status === 'success') {
                     Swal.fire('สำเร็จ', 'ทำการลบสินทรัพเสร็จสิ้น', 'success');
                     setEditingRowId(null);
-                    setUpd([]);
+                setUpd([]);
+                setFilteredProducts([])
+                setIsLoading1(false)
                 } else {
                     Swal.fire('Error', response.data.message, 'error');
                 }
@@ -280,7 +282,7 @@ const HomePageForm = () => {
         }
     };
 
-    const handleSearchProductById = async (id: string = productID) => {
+    const handleSearchProductById = async (id: string = searchTerm) => {
         try {
             isManualSearch.current = true; // <- ตั้งตรงนี้ก่อนยิง API
             const { data } = await axios.post('https://product-record-backend.vercel.app/api/product/getProduct_ByProductID', {
@@ -306,11 +308,12 @@ const HomePageForm = () => {
     
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        handleSearchProductById();
+        isManualSearch.current = true;
+        handleSearchProductById(searchTerm);
     };
 
     const handleSuggestionClick = (suggestion: string) => {
-        setProductID(suggestion);
+        setSearchTerm(suggestion);
         setShowDropdown(false);
         handleSearchProductById(suggestion);
     };
@@ -368,8 +371,8 @@ const HomePageForm = () => {
                                     </svg>
                                 </button>
                                 <input
-                                    value={productID}
-                                    onChange={(e) => setProductID(e.target.value)}
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
                                     type="text"
                                     placeholder="ค้นหาสินทรัพย์..."
                                     className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px]"
@@ -418,7 +421,7 @@ const HomePageForm = () => {
                                                     <path d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363Z" />
                                                 </svg>
                                                 <span className="text-sm text-gray-800 dark:text-white/90">
-                                                    {highlightMatch(suggestion, productID)}
+                                                    {highlightMatch(suggestion, searchTerm)}
                                                 </span>
                                             </div>
                                         </li>
@@ -428,10 +431,10 @@ const HomePageForm = () => {
                         )}
                         
                         {/* No results message */}
-                        {!isLoading && showDropdown && suggestions.length === 0 && productID.length > 0 && (
+                        {!isLoading && showDropdown && suggestions.length === 0 && searchTerm.length > 0 && (
                             <div className="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg dark:bg-gray-800 xl:w-[430px]">
                                 <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                                    ไม่พบข้อมูลสินทรัพย์ "{productID}"
+                                    ไม่พบข้อมูลสินทรัพย์ "{searchTerm}"
                                 </div>
                             </div>
                         )}
