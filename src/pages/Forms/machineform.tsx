@@ -72,7 +72,7 @@ const Machineform = () => {
     const [roleUser, setRoleUser] = useState<string>('');
     const [countProduct, setCountProduct] = useState<number>(0);
     const [isLoading, setLoading] = useState(false);
-
+    const [sendProductTypeValue, setSendProductTypeValue] = useState('');
 
     dayjs.extend(utc)
     dayjs.extend(timezone)
@@ -242,9 +242,9 @@ const Machineform = () => {
     }
 
     // ตรวจสอบข้อมูลก่อน submit
-   const validateForm = () => {
+    const validateForm = () => {
         const errors: string[] = [];
-    
+
         if (!productName.trim()) errors.push("กรุณาระบุชื่อสินทรัพย์");
         // if (!employeeName.trim()) errors.push("กรุณาระบุชื่อผู้ใช้สินทรัพย์");
         // if (!employeeID.trim()) errors.push("กรุณาระบุรหัสพนักงานผู้ใช้สินทรัพย์");
@@ -254,7 +254,7 @@ const Machineform = () => {
         // if (!productDepartment.trim()) errors.push("กรุณาระบุแผนกที่ใช้งาน");
         if (!productTypeValue) errors.push("กรุณาเลือกประเภทสินทรัพย์");
         if (!calendar) errors.push("กรุณาเลือกวันที่");
-    
+
         if (errors.length > 0) {
             Swal.fire({
                 icon: 'error',
@@ -263,7 +263,7 @@ const Machineform = () => {
             });
             return false;
         }
-    
+
         return true;
     };
 
@@ -282,21 +282,24 @@ const Machineform = () => {
                 correctTypeLabel = type.label;
 
                 if (values.includes(idPrefix)) {
-                    correctTypeLabel = type.label;
-                    matchedTypeCode = idPrefix; //ปรับให้ข้อมูลที่จาก dropdown ตรง กับเลขสินทรัพย์ที่กรอก
-                    console.log('matchedTypeCode',matchedTypeCode)
-                    setProductTypeValue(matchedTypeCode)
+                    matchedTypeCode = Array.isArray(type.value) ? type.value.join(',') : type.value;
+                    setProductTypeValue(matchedTypeCode); // สำหรับแสดงใน dropdown
+                    setSendProductTypeValue(idPrefix); // สำหรับส่งไป backend
                     break;
                 }
             }
 
             // productTypeValue คือสิ่งที่ผู้ใช้เลือกจาก dropdown
-            // const selectedType = matchedTypeCode;
+            const selectedType = productType.find((type) => {
+                const val = Array.isArray(type.value) ? type.value.join(',') : type.value;
+                return val === productTypeValue;
+            });
 
-
-            if (productTypeValue !== matchedTypeCode) {
+            const values = selectedType ? (Array.isArray(selectedType.value) ? selectedType.value : [selectedType.value]) : [];
+            if (!values.includes(idPrefix)) {
                 return Swal.fire('แจ้งเตือน', `กรุณาเลือกประเภท ( ${correctTypeLabel} )`, 'error');
             }
+
         }
 
         if (validateForm()) {
@@ -312,8 +315,7 @@ const Machineform = () => {
                 formData.append('product_price', productPrice);
                 formData.append('product_number', product_number);
                 formData.append('product_department', productDepartment);
-                formData.append('product_type', Array.isArray(productTypeValue) ? productTypeValue[0] : productTypeValue);
-                console.log('Array.isArray(productTypeValue) ? productTypeValue[0] : productTypeValue,', Array.isArray(productTypeValue) ? productTypeValue[0] : productTypeValue)
+                formData.append('product_type', sendProductTypeValue);
                 formData.append('calendar', calendar?.toISOString() || '');
                 formData.append('add_by_user', user_id);
 
@@ -545,12 +547,12 @@ const Machineform = () => {
 
                 </div>
                 {roleUser === 'admin' && (
-                        <button
-                            onClick={openModal}
-                            className="mr-auto mt-4 bg-[#009A3E] max-sm:block sm:hidden px-2 py-3 rounded-lg text-white hover:bg-[#7FBA20]">
-                            เพิ่มสินทรัพย์
-                        </button>
-                    )}
+                    <button
+                        onClick={openModal}
+                        className="mr-auto mt-4 bg-[#009A3E] max-sm:block sm:hidden px-2 py-3 rounded-lg text-white hover:bg-[#7FBA20]">
+                        เพิ่มสินทรัพย์
+                    </button>
+                )}
                 {/* Table */}
                 <ProductTable
                     products={filteredProducts}
@@ -570,7 +572,20 @@ const Machineform = () => {
                 <Modal isOpen={isOpen} onClose={closeModal} className={`lg:min-w-[720px] m-4 max-h-[640px] overflow-y-auto`}>
                     <div className="content mt-3">
                         <form onSubmit={handleSubmit}>
-                            <div>
+                        <div >
+                                <Label>
+                                    เลขสินทรัพย์ <span className='text-error-500'>*</span>
+                                </Label>
+                                <Input
+                                    type='text'
+                                    id='product_id'
+                                    name='product_id'
+                                    placeholder='กรุณาใส่เลขสินทรัพย์'
+                                    value={productId}
+                                    onChange={(e) => setProductId(e.target.value)}
+                                />
+                            </div>
+                            <div className="mt-2">
                                 <Label>
                                     ชื่อสินทรัพย์ <span className='text-error-500'>*</span>
                                 </Label>
@@ -585,7 +600,7 @@ const Machineform = () => {
                             </div>
                             <div className='mt-2'>
                                 <Label>
-                                    ชื่อผู้ใช้สินทรัพย์ 
+                                    ชื่อผู้ใช้สินทรัพย์
                                 </Label>
                                 <Input
                                     type='text'
@@ -598,7 +613,7 @@ const Machineform = () => {
                             </div>
                             <div className='mt-2'>
                                 <Label>
-                                    รหัสพนักงานผู้ใช้สินทรัพย์ 
+                                    รหัสพนักงานผู้ใช้สินทรัพย์
                                 </Label>
                                 <Input
                                     type='text'
@@ -609,19 +624,7 @@ const Machineform = () => {
                                     onChange={(e) => setEmployeeID(e.target.value)}
                                 />
                             </div>
-                            <div className="mt-2">
-                                <Label>
-                                    เลขสินทรัพย์ <span className='text-error-500'>*</span>
-                                </Label>
-                                <Input
-                                    type='text'
-                                    id='product_id'
-                                    name='product_id'
-                                    placeholder='กรุณาใส่เลขสินทรัพย์'
-                                    value={productId}
-                                    onChange={(e) => setProductId(e.target.value)}
-                                />
-                            </div>
+                        
                             <div className="mt-2">
                                 <Label>
                                     ราคาสินทรัพย์ <span className='text-error-500'>*</span>
@@ -671,19 +674,20 @@ const Machineform = () => {
                                         name="product_type"
                                         id="product_type"
                                         className="select"
-                                        value={Array.isArray(productTypeValue) ? productTypeValue.join(',') : productTypeValue}
+                                        value={productTypeValue}
                                         onChange={handleProductTypeChange}
                                     >
                                         <option value="">กรุณาเลือกประเภทสินทรัพย์</option>
-                                        {productType.map((product) => (
-                                            <option
-                                                key={Array.isArray(product.value) ? product.value.join(',') : product.value}
-                                                value={Array.isArray(product.value) ? product.value.join(',') : product.value}
-                                            >
-                                                {product.label}
-                                            </option>
-                                        ))}
+                                        {productType.map((product) => {
+                                            const val = Array.isArray(product.value) ? product.value.join(',') : product.value;
+                                            return (
+                                                <option key={val} value={val}>
+                                                    {product.label}
+                                                </option>
+                                            );
+                                        })}
                                     </select>
+
                                 </fieldset>
                                 <div className="card flex flex-wrap gap-3 p-fluid w-full">
                                     <div className="flex-auto">

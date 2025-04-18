@@ -72,6 +72,7 @@ const WaterSystem = () => {
     const [roleUser, setRoleUser] = useState<string>('');
     const [countProduct, setCountProduct] = useState<number>(0);
     const [isLoading, setLoading] = useState(false);
+    const [sendProductTypeValue, setSendProductTypeValue] = useState('');
 
 
     dayjs.extend(utc)
@@ -284,21 +285,24 @@ const WaterSystem = () => {
                 correctTypeLabel = type.label;
 
                 if (values.includes(idPrefix)) {
-                    correctTypeLabel = type.label;
-                    matchedTypeCode = idPrefix; //ปรับให้ข้อมูลที่จาก dropdown ตรง กับเลขสินทรัพย์ที่กรอก
-               console.log('matchedTypeCode',matchedTypeCode)
-                    setProductTypeValue(matchedTypeCode)
+                    matchedTypeCode = Array.isArray(type.value) ? type.value.join(',') : type.value;
+                    setProductTypeValue(matchedTypeCode); // สำหรับแสดงใน dropdown
+                    setSendProductTypeValue(idPrefix); // สำหรับส่งไป backend
                     break;
                 }
             }
 
             // productTypeValue คือสิ่งที่ผู้ใช้เลือกจาก dropdown
-            // const selectedType = matchedTypeCode;
-
-
-            if (productTypeValue !== matchedTypeCode) {
+            const selectedType = productType.find((type) => {
+                const val = Array.isArray(type.value) ? type.value.join(',') : type.value;
+                return val === productTypeValue;
+            });
+            
+            const values = selectedType ? (Array.isArray(selectedType.value) ? selectedType.value : [selectedType.value]) : [];
+            if (!values.includes(idPrefix)) {
                 return Swal.fire('แจ้งเตือน', `กรุณาเลือกประเภท ( ${correctTypeLabel} )`, 'error');
             }
+
         }
 
         if (validateForm()) {
@@ -314,7 +318,7 @@ const WaterSystem = () => {
                 formData.append('product_price', productPrice);
                 formData.append('product_number', product_number);
                 formData.append('product_department', productDepartment);
-                formData.append('product_type', Array.isArray(productTypeValue) ? productTypeValue[0] : productTypeValue);
+                formData.append('product_type', sendProductTypeValue);
                 console.log('Array.isArray(productTypeValue) ? productTypeValue[0] : productTypeValue,', Array.isArray(productTypeValue) ? productTypeValue[0] : productTypeValue)
                 formData.append('calendar', calendar?.toISOString() || '');
                 formData.append('add_by_user', user_id);
@@ -573,7 +577,20 @@ const WaterSystem = () => {
                 <Modal isOpen={isOpen} onClose={closeModal} className={`lg:min-w-[720px] m-4 max-h-[640px] overflow-y-auto`}>
                     <div className="content mt-3">
                         <form onSubmit={handleSubmit}>
-                            <div>
+                        <div >
+                                <Label>
+                                    เลขสินทรัพย์ <span className='text-error-500'>*</span>
+                                </Label>
+                                <Input
+                                    type='text'
+                                    id='product_id'
+                                    name='product_id'
+                                    placeholder='กรุณาใส่เลขสินทรัพย์'
+                                    value={productId}
+                                    onChange={(e) => setProductId(e.target.value)}
+                                />
+                            </div>
+                            <div className="mt-2">
                                 <Label>
                                     ชื่อสินทรัพย์ <span className='text-error-500'>*</span>
                                 </Label>
@@ -588,7 +605,7 @@ const WaterSystem = () => {
                             </div>
                             <div className='mt-2'>
                                 <Label>
-                                    ชื่อผู้ใช้สินทรัพย์ 
+                                    ชื่อผู้ใช้สินทรัพย์
                                 </Label>
                                 <Input
                                     type='text'
@@ -601,7 +618,7 @@ const WaterSystem = () => {
                             </div>
                             <div className='mt-2'>
                                 <Label>
-                                    รหัสพนักงานผู้ใช้สินทรัพย์ 
+                                    รหัสพนักงานผู้ใช้สินทรัพย์
                                 </Label>
                                 <Input
                                     type='text'
@@ -612,19 +629,7 @@ const WaterSystem = () => {
                                     onChange={(e) => setEmployeeID(e.target.value)}
                                 />
                             </div>
-                            <div className="mt-2">
-                                <Label>
-                                    เลขสินทรัพย์ <span className='text-error-500'>*</span>
-                                </Label>
-                                <Input
-                                    type='text'
-                                    id='product_id'
-                                    name='product_id'
-                                    placeholder='กรุณาใส่เลขสินทรัพย์'
-                                    value={productId}
-                                    onChange={(e) => setProductId(e.target.value)}
-                                />
-                            </div>
+                        
                             <div className="mt-2">
                                 <Label>
                                     ราคาสินทรัพย์ <span className='text-error-500'>*</span>
@@ -674,19 +679,20 @@ const WaterSystem = () => {
                                         name="product_type"
                                         id="product_type"
                                         className="select"
-                                        value={Array.isArray(productTypeValue) ? productTypeValue.join(',') : productTypeValue}
+                                        value={productTypeValue}
                                         onChange={handleProductTypeChange}
                                     >
                                         <option value="">กรุณาเลือกประเภทสินทรัพย์</option>
-                                        {productType.map((product) => (
-                                            <option
-                                                key={Array.isArray(product.value) ? product.value.join(',') : product.value}
-                                                value={Array.isArray(product.value) ? product.value.join(',') : product.value}
-                                            >
-                                                {product.label}
-                                            </option>
-                                        ))}
+                                        {productType.map((product) => {
+                                            const val = Array.isArray(product.value) ? product.value.join(',') : product.value;
+                                            return (
+                                                <option key={val} value={val}>
+                                                    {product.label}
+                                                </option>
+                                            );
+                                        })}
                                     </select>
+
                                 </fieldset>
                                 <div className="card flex flex-wrap gap-3 p-fluid w-full">
                                     <div className="flex-auto">
