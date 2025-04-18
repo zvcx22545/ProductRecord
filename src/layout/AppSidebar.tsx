@@ -50,7 +50,7 @@ const navItems: NavItem[] = [
       { name: "โปรแกรม", path: "/form-program", pro: false },
       { name: "สิ่งของตกแต่งสำนักงาน", path: "/form-decor", pro: false },
       { name: "ส่วนปรับปรุงอาคาร", path: "/form-tower", pro: false },
-      { name: "อุปกรณ์สำนักงาน", path: "/form-tooloffice", pro: false },
+      { name: "เครื่องจักร เครื่องมือ เครื่องใช้", path: "/form-tooloffice", pro: false },
       { name: "ระบบไฟฟ้า", path: "/form-electrical", pro: false },
       { name: "ระบบน้ำ", path: "/form-watersystem", pro: false },
     ],

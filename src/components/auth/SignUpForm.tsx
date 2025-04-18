@@ -117,7 +117,7 @@ export default function SignUpForm() {
         profile_image: profile// ใช้รูปโปรไฟล์เริ่มต้นถ้าไม่มีอัปโหลด
       }
 
-      const response = await axios.post("https://product-record-backend.vercel.app/api/authen/register", userData)
+      const response = await axios.post("http://localhost:8000/api/authen/register", userData)
       console.log("Success:", response.data)
       if (response.data && response.data.newUser) {
         // If newUser exists, show success message

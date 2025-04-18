@@ -62,7 +62,6 @@ const ToolOffice = () => {
     const [productPrice, setProductPrice] = useState('');
     const [product_number, setProductNumber] = useState('');
     const [productDepartment, setProductDepartment] = useState('');
-    const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
     const [Products, setProducts] = useState<Product[]>([])
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 6;
@@ -93,7 +92,7 @@ const ToolOffice = () => {
             value: 'B'
         },
         {
-            label: 'อุปกรณ์สำนักงาน',
+            label: 'เครื่องจักร เครื่องมือ เครื่องใช้',
             value: ['TO', 'MC', 'EQ']
         },
         {
@@ -133,7 +132,7 @@ const ToolOffice = () => {
                         ? targetProduct.value
                         : [targetProduct.value];
 
-                    const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts`, {
+                    const { data } = await axios.get(`http://localhost:8000/api/product/getProducts`, {
                         params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                     });
 
@@ -169,7 +168,7 @@ const ToolOffice = () => {
 
             // If confirmed, proceed with the deletion
             if (result.isConfirmed) {
-                const response = await axios.delete(`https://product-record-backend.vercel.app/api/product/deleteProduct/${productId}`);
+                const response = await axios.delete(`http://localhost:8000/api/product/deleteProduct/${productId}`);
 
                 if (response.data.status === 'success') {
                     Swal.fire('สำเร็จ', 'ทำการลบสินทรัพเสร็จสิ้น', 'success');
@@ -185,7 +184,7 @@ const ToolOffice = () => {
                             ? targetProduct.value
                             : [targetProduct.value];
 
-                        const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts`, {
+                        const { data } = await axios.get(`http://localhost:8000/api/product/getProducts`, {
                             params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                         });
                         setProducts(data.product);
@@ -216,7 +215,6 @@ const ToolOffice = () => {
         setProductTypeValue('');
         setCalendar(null);
         setSelectedFile(null);
-        setFormErrors({});
     }
 
     // จัดการเลือกไฟล์
@@ -245,21 +243,30 @@ const ToolOffice = () => {
     }
 
     // ตรวจสอบข้อมูลก่อน submit
-    const validateForm = () => {
-        const errors: { [key: string]: string } = {};
-
-        if (!productName.trim()) errors.productName = "กรุณาระบุชื่อสินทรัพย์";
-        if (!employeeName.trim()) errors.employeeName = "กรุณาระบุชื่อผู้ใช้สินทรัพย์";
-        if (!productId.trim()) errors.productId = "กรุณาระบุเลขสินทรัพย์";
-        if (!productPrice.trim()) errors.productPrice = "กรุณาระบุราคาสินทรัพย์";
-        if (!product_number) errors.product_number = "กรุณาระบุจำนวนสินทรัพย์";
-        if (!productDepartment.trim()) errors.productDepartment = "กรุณาระบุแผนกที่ใช้งาน";
-        if (!productTypeValue) errors.productType = "กรุณาเลือกประเภทสินทรัพย์";
-        if (!calendar) errors.calendar = "กรุณาเลือกวันที่";
-
-        setFormErrors(errors);
-        return Object.keys(errors).length === 0;
-    }
+   const validateForm = () => {
+        const errors: string[] = [];
+    
+        if (!productName.trim()) errors.push("กรุณาระบุชื่อสินทรัพย์");
+        // if (!employeeName.trim()) errors.push("กรุณาระบุชื่อผู้ใช้สินทรัพย์");
+        // if (!employeeID.trim()) errors.push("กรุณาระบุรหัสพนักงานผู้ใช้สินทรัพย์");
+        if (!productId.trim()) errors.push("กรุณาระบุเลขสินทรัพย์");
+        if (!productPrice.trim()) errors.push("กรุณาระบุราคาสินทรัพย์");
+        if (!product_number) errors.push("กรุณาระบุจำนวนสินทรัพย์");
+        // if (!productDepartment.trim()) errors.push("กรุณาระบุแผนกที่ใช้งาน");
+        if (!productTypeValue) errors.push("กรุณาเลือกประเภทสินทรัพย์");
+        if (!calendar) errors.push("กรุณาเลือกวันที่");
+    
+        if (errors.length > 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'กรอกข้อมูลไม่ครบถ้วน',
+                text: errors[0], // แสดงเฉพาะข้อความแรก
+            });
+            return false;
+        }
+    
+        return true;
+    };
 
     // จัดการ submit ฟอร์ม
 
@@ -319,7 +326,7 @@ const ToolOffice = () => {
                     console.log('No file selected.');
                 }
 
-                const response = await axios.post('https://product-record-backend.vercel.app/api/product/createProduct', formData, {
+                const response = await axios.post('http://localhost:8000/api/product/createProduct', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -339,7 +346,7 @@ const ToolOffice = () => {
                             ? targetProduct.value
                             : [targetProduct.value];
 
-                        const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts`, {
+                        const { data } = await axios.get(`http://localhost:8000/api/product/getProducts`, {
                             params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                         });
                         setProducts(data.product);
@@ -409,7 +416,7 @@ const ToolOffice = () => {
 
             }
             // ส่งข้อมูลที่แก้ไขไปยัง API
-            const response = await axios.post('https://product-record-backend.vercel.app/api/product/update-Product', { products: upd });
+            const response = await axios.post('http://localhost:8000/api/product/update-Product', { products: upd });
 
             if (response.data.status === 'success') {
                 Swal.fire('สำเร็จ', 'อัพเดทข้อมูลเรียบร้อยแล้ว', 'success');
@@ -425,7 +432,7 @@ const ToolOffice = () => {
                         ? targetProduct.value
                         : [targetProduct.value];
 
-                    const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts`, {
+                    const { data } = await axios.get(`http://localhost:8000/api/product/getProducts`, {
                         params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                     });
                     setProducts(data.product);
@@ -491,7 +498,7 @@ const ToolOffice = () => {
             <PageMeta title="Tool Office Page"
                 description="This is Page for showing and add data for machine"
             />
-            <PageBreadcrumb pageTitle="อุปกรณ์สำนักงาน" />
+            <PageBreadcrumb pageTitle="เครื่องจักร เครื่องมือ เครื่องใช้" />
             <div className="content">
                 <div className="flex items-center justify-between">
                      <div className="max-sm:w-full">
@@ -576,11 +583,10 @@ const ToolOffice = () => {
                                     value={productName}
                                     onChange={(e) => setProductName(e.target.value)}
                                 />
-                                {formErrors.productName && <p className="text-error-500 text-sm mt-1">{formErrors.productName}</p>}
                             </div>
                             <div className='mt-2'>
                                 <Label>
-                                    ชื่อผู้ใช้สินทรัพย์ <span className='text-error-500'>*</span>
+                                    ชื่อผู้ใช้สินทรัพย์ 
                                 </Label>
                                 <Input
                                     type='text'
@@ -590,11 +596,10 @@ const ToolOffice = () => {
                                     value={employeeName}
                                     onChange={(e) => setEmployeeName(e.target.value)}
                                 />
-                                {formErrors.employeeName && <p className="text-error-500 text-sm mt-1">{formErrors.employeeName}</p>}
                             </div>
                             <div className='mt-2'>
                                 <Label>
-                                    รหัสพนักงานผู้ใช้สินทรัพย์ <span className='text-error-500'>*</span>
+                                    รหัสพนักงานผู้ใช้สินทรัพย์ 
                                 </Label>
                                 <Input
                                     type='text'
@@ -604,7 +609,6 @@ const ToolOffice = () => {
                                     value={employeeID}
                                     onChange={(e) => setEmployeeID(e.target.value)}
                                 />
-                                {formErrors.employeeName && <p className="text-error-500 text-sm mt-1">{formErrors.employeeName}</p>}
                             </div>
                             <div className="mt-2">
                                 <Label>
@@ -618,7 +622,6 @@ const ToolOffice = () => {
                                     value={productId}
                                     onChange={(e) => setProductId(e.target.value)}
                                 />
-                                {formErrors.productId && <p className="text-error-500 text-sm mt-1">{formErrors.productId}</p>}
                             </div>
                             <div className="mt-2">
                                 <Label>
@@ -632,8 +635,8 @@ const ToolOffice = () => {
                                     value={productPrice}
                                     onChange={(e) => setProductPrice(e.target.value)}
                                 />
-                                {formErrors.productPrice && <p className="text-error-500 text-sm mt-1">{formErrors.productPrice}</p>}
                             </div>
+
                             <div className="mt-2">
                                 <Label>
                                     จำนวนสินทรัพย์ <span className='text-error-500'>*</span>
@@ -646,11 +649,10 @@ const ToolOffice = () => {
                                     value={product_number}
                                     onChange={(e) => setProductNumber(e.target.value)}
                                 />
-                                {formErrors.productPrice && <p className="text-error-500 text-sm mt-1">{formErrors.productPrice}</p>}
                             </div>
                             <div className="mt-2">
                                 <Label>
-                                    แผนกที่ใช้งานสินทรัพย์ <span className='text-error-500'>*</span>
+                                    แผนกที่ใช้งานสินทรัพย์
                                 </Label>
                                 <Input
                                     type='text'
@@ -660,7 +662,6 @@ const ToolOffice = () => {
                                     value={productDepartment}
                                     onChange={(e) => setProductDepartment(e.target.value)}
                                 />
-                                {formErrors.productDepartment && <p className="text-error-500 text-sm mt-1">{formErrors.productDepartment}</p>}
                             </div>
                             <div className="flex w-full mt-2 items-center">
                                 <fieldset className="w-full">
@@ -684,12 +685,11 @@ const ToolOffice = () => {
                                             </option>
                                         ))}
                                     </select>
-                                    {formErrors.productType && <p className="text-error-500 text-sm mt-1">{formErrors.productType}</p>}
                                 </fieldset>
                                 <div className="card flex flex-wrap gap-3 p-fluid w-full">
                                     <div className="flex-auto">
                                         <Label>
-                                            กรุณาเลือกวันที่ <span className='text-error-500'>*</span>
+                                            กรุณาเลือกวันที่ซื้อ <span className='text-error-500'>*</span>
                                         </Label>
                                         <Calendar
                                             className='w-full shadow-lg rounded-lg'
@@ -703,7 +703,6 @@ const ToolOffice = () => {
                                             maxDate={new Date()} // ห้ามเลือกวัน/เวลาที่มากกว่าปัจจุบัน
                                             dateFormat="dd MM yy" // แค่สำหรับ UI ในปฏิทิน
                                         />
-                                        {formErrors.calendar && <p className="text-error-500 text-sm mt-1">{formErrors.calendar}</p>}
                                     </div>
                                 </div>
                             </div>
