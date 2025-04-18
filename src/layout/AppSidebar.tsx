@@ -47,7 +47,7 @@ const navItems: NavItem[] = [
     subItems: [
       // { name: "Form Elements", path: "/form-elements", pro: false },
       { name: "อุปกรณ์คอมพิวเตอร์โน๊คบุ๊ค", path: "/form-machine", pro: false },
-      { name: "โปรแกรม", path: "/form-program", pro: false },
+      { name: "สินทรัพย์ไม่คำนวณทรัพย์สิน", path: "/form-program", pro: false },
       { name: "สิ่งของตกแต่งสำนักงาน", path: "/form-decor", pro: false },
       { name: "ส่วนปรับปรุงอาคาร", path: "/form-tower", pro: false },
       { name: "เครื่องจักร เครื่องมือ เครื่องใช้", path: "/form-tooloffice", pro: false },

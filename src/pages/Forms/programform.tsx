@@ -81,7 +81,7 @@ const Machineform = () => {
     const productType: Product_Type[] = [
         {
             value: ['ZZ', 'SV'],
-            label: 'โปรแกรม'
+            label: 'สินทรัพย์ไม่คำนวณทรัพย์สิน'
         },
         {
             label: 'สิ่งของตกแต่งสำนักงาน',
@@ -501,7 +501,7 @@ const Machineform = () => {
             <PageMeta title="Program Page"
                 description="This is Page for showing and add data for machine"
             />
-            <PageBreadcrumb pageTitle="โปรแกรม" />
+            <PageBreadcrumb pageTitle="สินทรัพย์ไม่คำนวณทรัพย์สิน" />
             <div className="content">
                 <div className="flex items-center justify-between">
                      <div className="max-sm:w-full">

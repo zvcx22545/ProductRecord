@@ -81,7 +81,7 @@ const OfficeDecoration = () => {
     const productType: Product_Type[] = [
         {
             value: ['ZZ', 'SV'],
-            label: 'โปรแกรม'
+            label: 'สินทรัพย์ไม่คำนวณทรัพย์สิน'
         },
         {
             label: 'สิ่งของตกแต่งสำนักงาน',
