@@ -179,7 +179,7 @@ const Electrical = () => {
                             : ['EL'].includes(item.value)
                     );
 
-                    if (targetProduct) {
+                      if (targetProduct) {
                         const typeValues = Array.isArray(targetProduct.value)
                             ? targetProduct.value
                             : [targetProduct.value];
@@ -188,8 +188,9 @@ const Electrical = () => {
                             params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                         });
                         setProducts(data.product);
-                        setCountProduct(data.product.length);
+                        setCountProduct(data.product.length)
                         setUpd([]);
+                        closeModal()
                     }
                 } else {
                     Swal.fire('Error', response.data.message, 'error');

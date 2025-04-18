@@ -179,7 +179,7 @@ const ToolOffice = () => {
                             : ['TO', 'MC', 'EQ'].includes(item.value)
                     );
 
-                    if (targetProduct) {
+                      if (targetProduct) {
                         const typeValues = Array.isArray(targetProduct.value)
                             ? targetProduct.value
                             : [targetProduct.value];
@@ -188,8 +188,9 @@ const ToolOffice = () => {
                             params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                         });
                         setProducts(data.product);
-                        setCountProduct(data.product.length);
+                        setCountProduct(data.product.length)
                         setUpd([]);
+                        closeModal()
                     }
                 } else {
                     Swal.fire('Error', response.data.message, 'error');
@@ -341,7 +342,7 @@ const ToolOffice = () => {
                             : ['TO', 'MC', 'EQ'].includes(item.value)
                     );
 
-                    if (targetProduct) {
+                      if (targetProduct) {
                         const typeValues = Array.isArray(targetProduct.value)
                             ? targetProduct.value
                             : [targetProduct.value];
@@ -350,8 +351,9 @@ const ToolOffice = () => {
                             params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                         });
                         setProducts(data.product);
-                        setCountProduct(data.product.length);
+                        setCountProduct(data.product.length)
                         setUpd([]);
+                        closeModal()
                     }
                 } else {
                     console.error('Failed to add product:', response.data.message);
