@@ -284,18 +284,17 @@ const Machineform = () => {
                 if (values.includes(idPrefix)) {
                     correctTypeLabel = type.label;
                     matchedTypeCode = idPrefix; //ปรับให้ข้อมูลที่จาก dropdown ตรง กับเลขสินทรัพย์ที่กรอก
+                    console.log('matchedTypeCode',matchedTypeCode)
                     setProductTypeValue(matchedTypeCode)
                     break;
                 }
             }
 
             // productTypeValue คือสิ่งที่ผู้ใช้เลือกจาก dropdown
-            const selectedType = Array.isArray(productTypeValue) ? productTypeValue.find((x) => x === idPrefix)
-                : productTypeValue === idPrefix
-                    ? productTypeValue
-                    : null;
+            // const selectedType = matchedTypeCode;
 
-            if (matchedTypeCode !== selectedType) {
+
+            if (productTypeValue !== matchedTypeCode) {
                 return Swal.fire('แจ้งเตือน', `กรุณาเลือกประเภท ( ${correctTypeLabel} )`, 'error');
             }
         }
@@ -314,6 +313,7 @@ const Machineform = () => {
                 formData.append('product_number', product_number);
                 formData.append('product_department', productDepartment);
                 formData.append('product_type', Array.isArray(productTypeValue) ? productTypeValue[0] : productTypeValue);
+                console.log('Array.isArray(productTypeValue) ? productTypeValue[0] : productTypeValue,', Array.isArray(productTypeValue) ? productTypeValue[0] : productTypeValue)
                 formData.append('calendar', calendar?.toISOString() || '');
                 formData.append('add_by_user', user_id);
 
