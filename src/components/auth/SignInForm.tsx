@@ -49,6 +49,8 @@ export default function SignInForm() {
           icon: "success",
           confirmButtonColor: "#009A3E",
           confirmButtonText: "ตกลง",
+          // allowOutsideClick: false,
+          // allowEscapeKey: false,
         }).then((result) => {
           if (result.isConfirmed) {
             // If OK is clicked, navigate to /signin

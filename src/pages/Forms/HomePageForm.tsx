@@ -373,10 +373,10 @@ const HomePageForm = () => {
 
     return (
         <div>
-            <PageMeta title="Home Page"
+            <PageMeta title="sincere"
                 description="This is Page for showing and add data for main page"
             />
-            <PageBreadcrumb pageTitle="หน้าแรก" />
+            <PageBreadcrumb pageTitle="หน้าหลัก" />
             <div className="content">
                 <div className="flex items-center justify-between">
                     <div className="relative" ref={searchRef}>

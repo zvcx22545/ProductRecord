@@ -73,6 +73,7 @@ const Machineform = () => {
     const [countProduct, setCountProduct] = useState<number>(0);
     const [isLoading, setLoading] = useState(false);
     const [sendProductTypeValue, setSendProductTypeValue] = useState('');
+    const [isLoading1, setIsLoading1] = useState<boolean>(false);
 
     dayjs.extend(utc)
     dayjs.extend(timezone)
@@ -119,6 +120,7 @@ const Machineform = () => {
     useEffect(() => {
         (async () => {
             try {
+                setIsLoading1(true)
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
                         ? ['CO'].some(code => item.value.includes(code))
@@ -142,6 +144,8 @@ const Machineform = () => {
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
+            } finally {
+                setIsLoading1(false)
             }
         })();
     }, []);
@@ -257,7 +261,7 @@ const Machineform = () => {
 
         if (!calendar) errors.push("กรุณาเลือกวันที่จัดซื้อ");
         if (!selectedFile) errors.push("กรุณาเพิ่มรูปภาพ");
-        
+
 
         if (errors.length > 0) {
             Swal.fire({
@@ -558,6 +562,7 @@ const Machineform = () => {
                 )}
                 {/* Table */}
                 <ProductTable
+                    isLoading={isLoading1}
                     searchTerm={searchTerm}
                     products={filteredProducts}
                     currentPage={currentPage}

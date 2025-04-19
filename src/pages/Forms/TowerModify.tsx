@@ -73,6 +73,7 @@ const TowerModify = () => {
     const [countProduct, setCountProduct] = useState<number>(0);
     const [isLoading, setLoading] = useState(false);
     const [sendProductTypeValue, setSendProductTypeValue] = useState('');
+    const [isLoading1, setIsLoading1] = useState<boolean>(false);
 
 
     dayjs.extend(utc)
@@ -117,9 +118,10 @@ const TowerModify = () => {
         }
     }, [isOpen])
 
-    useEffect(() => {
+useEffect(() => {
         (async () => {
             try {
+                setIsLoading1(true)
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
                         ? ['B'].some(code => item.value.includes(code))
@@ -143,6 +145,8 @@ const TowerModify = () => {
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
+            } finally {
+                setIsLoading1(false)
             }
         })();
     }, []);
@@ -561,6 +565,7 @@ const TowerModify = () => {
                     )}
                 {/* Table */}
                 <ProductTable
+                    isLoading={isLoading1}
                     searchTerm={searchTerm}
                     products={filteredProducts}
                     currentPage={currentPage}

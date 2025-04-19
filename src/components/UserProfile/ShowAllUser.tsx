@@ -32,6 +32,8 @@ const ShowAllUser = () => {
     const [roleUser, setRoleUser] = useState<string>('');
     const [countUser, setCountUser] = useState<number>(0);
     const [filteredUser, setFilteredUser] = useState<User[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
 
 
     dayjs.extend(utc)
@@ -43,6 +45,7 @@ const ShowAllUser = () => {
         (async () => {
 
             try {
+                setIsLoading(true)
                 const { data } = await axios.get('http://localhost:8000/api/authen/getAllUsers')
                 if (!data.status === true) return
                 setUser(data.rows)
@@ -50,6 +53,8 @@ const ShowAllUser = () => {
 
             } catch (error) {
                 console.error('Error for fetching data', error)
+            } finally {
+                setIsLoading(false)
             }
         })();
     }, [])
@@ -172,6 +177,8 @@ const ShowAllUser = () => {
 
                 {/* Table */}
                 <UserTable
+                    isLoading={isLoading}
+                    searchTerm={searchTerm}
                     users={filteredUser}
                     currentPage={currentPage}
                     setCurrentPage={setCurrentPage}

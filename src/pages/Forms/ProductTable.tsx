@@ -52,6 +52,7 @@ interface ProductTableProps {
     handleSaveAllChanges: () => void;
     countProduct: number;
     searchTerm: string;
+    isLoading: boolean
 }
 
 const ProductTable: React.FC<ProductTableProps> = ({
@@ -67,7 +68,8 @@ const ProductTable: React.FC<ProductTableProps> = ({
     handleDelete,
     handleSaveAllChanges,
     countProduct,
-    searchTerm
+    searchTerm,
+    isLoading
 }) => {
     // Calculate pagination values
     const [zoomImage, setZoomImage] = useState<string | null>(null);
@@ -231,7 +233,25 @@ const ProductTable: React.FC<ProductTableProps> = ({
 
                         {/* Table Body */}
                         <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                            {currentRows.length > 0 ? (
+                            {isLoading ? (
+                                // แสดง Rainbow Loading Animation เมื่อกำลังโหลดข้อมูล
+                                <TableRow>
+                                    <TableCell colSpan={12} className="px-4 py-8 text-center">
+                                        <div className="flex items-center justify-center gap-2">
+                                            <div className="flex space-x-2">
+                                                <div className="h-3 w-3 animate-pulse rounded-full bg-red-500 delay-0"></div>
+                                                <div className="h-3 w-3 animate-pulse rounded-full bg-orange-500 delay-150"></div>
+                                                <div className="h-3 w-3 animate-pulse rounded-full bg-yellow-500 delay-300"></div>
+                                                <div className="h-3 w-3 animate-pulse rounded-full bg-green-500 delay-450"></div>
+                                                <div className="h-3 w-3 animate-pulse rounded-full bg-blue-500 delay-600"></div>
+                                                <div className="h-3 w-3 animate-pulse rounded-full bg-indigo-500 delay-750"></div>
+                                                <div className="h-3 w-3 animate-pulse rounded-full bg-purple-500 delay-900"></div>
+                                            </div>
+                                            <span className="text-sm text-gray-500 dark:text-gray-400">กำลังโหลดข้อมูลสินทรัพย์...</span>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ) : currentRows.length > 0 ? (
                                 currentRows.map((product, index) => {
                                     // Find updated product data
                                     const updatedProduct = upd.find(item => item.id === product.id);
@@ -378,7 +398,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={11} className="px-4 py-8 text-center text-gray-500 text-theme-sm dark:text-gray-400">
-                                    {searchTerm ? 'ไม่พบข้อมูลที่ค้นหา' : 'ไม่มีข้อมูลสินทรัพย์ในระบบ'}
+                                        {searchTerm ? 'ไม่พบข้อมูลที่ค้นหา' : 'ไม่มีข้อมูลสินทรัพย์ในระบบ'}
                                     </TableCell>
                                 </TableRow>
                             )}

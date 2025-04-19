@@ -184,7 +184,7 @@ export default function SignUpForm() {
           className="inline-flex items-center text-sm p-3 rounded-full bg-[#009A3E] text-white transition-colors hover:text-white dark:hover:text-gray-300 hover:bg-[#7FBA20]"
         >
           <ChevronLeftIcon className="size-5" />
-          ไปยังหน้าเข้าสู่ระบบ
+          {userRole === "admin" ? "ไปยังหน้าหลัก" : "ไปยังหน้าเข้าสู่ระบบ"}
         </Link>
       </div>
 
@@ -204,7 +204,7 @@ export default function SignUpForm() {
         <div className="mb-2 w-full mx-auto sm:mb-6">
 
           <p className=" mx-auto text-center font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-sm">
-            {userRole === "admin" ? "เพิ่มสมาชิก" : "สมัครสมาชิก"}
+            {userRole === "admin" ? "เพิ่มพนักงาน" : "สมัครสมาชิก"}
           </p>
         </div>
         <div className="flex flex-col justify-center flex-1 w-full">

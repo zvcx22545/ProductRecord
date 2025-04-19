@@ -39,6 +39,8 @@ export default function UserInfoCard({ userProfile }: Props) {
   const { isOpen, openModal, closeModal } = useModal();
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const [isLoading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState<FormData>({
     id: userProfile?.id || 0,
     user_id: '',
@@ -73,6 +75,7 @@ export default function UserInfoCard({ userProfile }: Props) {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setLoading(true)
       const formDataToSend = new FormData();
       // Append all user data fields to the FormData
       formDataToSend.append('id', formData.id.toString());
@@ -82,18 +85,15 @@ export default function UserInfoCard({ userProfile }: Props) {
       formDataToSend.append('position', formData.position);
       formDataToSend.append('department', formData.department);
       formDataToSend.append('password', formData.password);
-      
-      // If there's a selected file, append it to FormData
+
       if (selectedFile) {
         formDataToSend.append('profile_image', selectedFile);
       } else {
-        // If no new file is selected but there's an existing profile image
         formDataToSend.append('profile_image', formData.profile_image);
       }
 
-      // Send the FormData to your API endpoint
       const { data } = await axios.post(
-        `http://localhost:8000/api/authen/updateUser`, 
+        `http://localhost:8000/api/authen/updateUser`,
         formDataToSend,
         {
           headers: {
@@ -108,7 +108,7 @@ export default function UserInfoCard({ userProfile }: Props) {
           title: 'สำเร็จ',
           text: 'อัพเดทข้อมูลเรียบร้อยแล้ว',
           icon: 'success',
-          showConfirmButton: true, 
+          showConfirmButton: true,
         }).then((result) => {
           if (result.isConfirmed) {
             window.location.reload();
@@ -118,6 +118,8 @@ export default function UserInfoCard({ userProfile }: Props) {
       }
     } catch (error) {
       console.error("Failed to update user:", error);
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -249,8 +251,8 @@ export default function UserInfoCard({ userProfile }: Props) {
                   </div>
 
                 </div>
-                  {/* Preview Image */}
-                  <div className="flex justify-center mt-4 shadow-lg rounded-lg max-w-[300px] max-h-[300px] mx-auto">
+                {/* Preview Image */}
+                <div className="flex justify-center mt-4 shadow-lg rounded-lg max-w-[300px] max-h-[300px] mx-auto">
                   {previewImage ? (
                     <img src={previewImage} alt="Preview" className="min-lg:max-w-[300px] min-lg:max-h-[300px] object-cover rounded-lg shadow-lg" />
                   ) : formData.profile_image ? (
@@ -283,12 +285,20 @@ export default function UserInfoCard({ userProfile }: Props) {
               </div>
             </div>
             <div className="flex items-center gap-3 px-2 mt-2 justify-center">
-              <Button size="sm" type="submit">
-                บันทึก
+              <Button size="sm" type="submit"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="loading loading-dots loading-sm mr-2"></span>
+                ) : (
+                  'บันทึก'
+                )}
               </Button>
-              <Button size="sm" variant="outline" onClick={closeModal}>
-                ยกเลิก
-              </Button>
+              {!isLoading && (
+                <Button size="sm" variant="outline" onClick={closeModal}>
+                  ยกเลิก
+                </Button>
+              )}
             </div>
           </form>
         </div>

@@ -73,6 +73,7 @@ const WaterSystem = () => {
     const [countProduct, setCountProduct] = useState<number>(0);
     const [isLoading, setLoading] = useState(false);
     const [sendProductTypeValue, setSendProductTypeValue] = useState('');
+    const [isLoading1, setIsLoading1] = useState<boolean>(false);
 
 
     dayjs.extend(utc)
@@ -117,9 +118,10 @@ const WaterSystem = () => {
         }
     }, [isOpen])
 
-    useEffect(() => {
+useEffect(() => {
         (async () => {
             try {
+                setIsLoading1(true)
                 const targetProduct = productType.find(item =>
                     Array.isArray(item.value)
                         ? ['WA'].some(code => item.value.includes(code))
@@ -143,6 +145,8 @@ const WaterSystem = () => {
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
+            } finally {
+                setIsLoading1(false)
             }
         })();
     }, []);
@@ -562,6 +566,7 @@ const WaterSystem = () => {
                     )}
                 {/* Table */}
                 <ProductTable
+                    isLoading={isLoading1}
                     searchTerm={searchTerm}
                     products={filteredProducts}
                     currentPage={currentPage}

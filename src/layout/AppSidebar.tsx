@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
+import HomeIcon from '@mui/icons-material/Home';
+import { PersonAdd } from '@mui/icons-material';
 
 // Assume these icons are imported from an icon library
 import {
@@ -9,9 +11,7 @@ import {
   // GridIcon,
   HorizontaLDots,
   ListIcon,
-  // PageIcon,
-  // PieChartIcon,
-  PlugInIcon,
+  // PlugInIcon,
   // TableIcon,
   UserCircleIcon,
 } from "../icons";
@@ -27,7 +27,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   // {
-  //   icon: <GridIcon />,
+  //   icon: <PageIcon />,
   //   name: "Dashboard",
   //   subItems: [{ name: "Ecommerce", path: "/", pro: false }],
   // },
@@ -37,8 +37,13 @@ const navItems: NavItem[] = [
   //   path: "/calendar",
   // },
   {
+    icon: <HomeIcon/>,
+    name: "หน้าหลัก",
+    path: "/",
+  },
+  {
     icon: <UserCircleIcon />,
-    name: "โปรไฟล์พนักงาน",
+    name: "ข้อมูลส่วนตัว",
     path: "/profile",
   },
   {
@@ -97,11 +102,10 @@ const othersItems: NavItem[] = [
   //   ],
   // },
   {
-    icon: <PlugInIcon />,
-    name: "เพิ่มสมาชิก",
+    icon: <PersonAdd />,
+    name: "เพิ่มพนักงาน",
     subItems: [
-      // { name: "Sign In", path: "/signin", pro: false },
-      { name: "Sign Up", path: "/signup", pro: false },
+      { name: "เข้าสู่หน้าเพิ่มพนักงาน", path: "/signup", pro: false },
     ],
   },
 ];

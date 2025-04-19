@@ -32,6 +32,8 @@ interface UserTableProps {
     roleUser: string;
     handleDelete: (id: number) => void;
     countUser: number;
+    searchTerm: string;
+    isLoading: boolean;
 }
 
 const UserTable: React.FC<UserTableProps> = ({
@@ -41,7 +43,9 @@ const UserTable: React.FC<UserTableProps> = ({
     rowsPerPage,
     roleUser,
     handleDelete,
-    countUser
+    countUser,
+    searchTerm,
+    isLoading,
 }) => {
     // Calculate pagination values
     // const [zoomImage, setZoomImage] = useState<string | null>(null);
@@ -115,7 +119,25 @@ const UserTable: React.FC<UserTableProps> = ({
 
                         {/* Table Body */}
                         <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                            {currentRows.length > 0 ? (
+                            {isLoading ? (
+                                // แสดง Rainbow Loading Animation เมื่อกำลังโหลดข้อมูล
+                                <TableRow>
+                                    <TableCell colSpan={12} className="px-4 py-8 text-center">
+                                        <div className="flex items-center justify-center gap-2">
+                                            <div className="flex space-x-2">
+                                                <div className="h-3 w-3 animate-pulse rounded-full bg-red-500 delay-0"></div>
+                                                <div className="h-3 w-3 animate-pulse rounded-full bg-orange-500 delay-150"></div>
+                                                <div className="h-3 w-3 animate-pulse rounded-full bg-yellow-500 delay-300"></div>
+                                                <div className="h-3 w-3 animate-pulse rounded-full bg-green-500 delay-450"></div>
+                                                <div className="h-3 w-3 animate-pulse rounded-full bg-blue-500 delay-600"></div>
+                                                <div className="h-3 w-3 animate-pulse rounded-full bg-indigo-500 delay-750"></div>
+                                                <div className="h-3 w-3 animate-pulse rounded-full bg-purple-500 delay-900"></div>
+                                            </div>
+                                            <span className="text-sm text-gray-500 dark:text-gray-400">กำลังโหลดข้อมูลพนักงาน...</span>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ) : currentRows.length > 0 ? (
                                 currentRows.map((user, index) => {
                                     return (
                                         <TableRow key={user.id}>
@@ -152,7 +174,7 @@ const UserTable: React.FC<UserTableProps> = ({
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={11} className="px-4 py-8 text-center text-gray-500 text-theme-sm dark:text-gray-400">
-                                        ไม่พบข้อมูลที่ค้นหา
+                                        {searchTerm ? 'ไม่พบข้อมูลที่ค้นหา' : 'ไม่มีข้อมูลพนักงานในระบบ'}
                                     </TableCell>
                                 </TableRow>
                             )}
