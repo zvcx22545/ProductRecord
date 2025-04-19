@@ -412,6 +412,8 @@ const ProductTable: React.FC<ProductTableProps> = ({
                             count={pageCount}
                             page={currentPage}
                             onChange={handlePageChange}
+                            siblingCount={1}     // ปุ่มข้างๆ current page
+                            boundaryCount={1}    // ปุ่มแรกและสุดท้าย
                             sx={{
                                 "& .MuiPaginationItem-root": {
                                     color: "#009A3E",

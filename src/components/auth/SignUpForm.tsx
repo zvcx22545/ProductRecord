@@ -75,7 +75,25 @@ export default function SignUpForm() {
       return
     }
 
-    if (!/^\d{5}$/.test(formData.user_id.toString())) {
+    if (!formData.first_name || !formData.last_name) {
+      Swal.fire({
+        title: "กรุณากรอกข้อมูลให้ครบถ้วน",
+        text: "กรุณากรอกขื่อและนามสกุล",
+        icon: "error",
+        confirmButtonColor: "#d33",
+        confirmButtonText: "ตกลง",
+      })
+      return
+    } else if (!formData.user_id && formData) {
+      Swal.fire({
+        title: "กรุณากรอกข้อมูลให้ครบถ้วน",
+        text: "กรุณากรอกรหัสพนักงาน",
+        icon: "error",
+        confirmButtonColor: "#d33",
+        confirmButtonText: "ตกลง",
+      })
+      return
+    } else if (!/^\d{5}$/.test(formData.user_id.toString())) {
       Swal.fire({
         title: "รหัสพนักงานไม่ถูกต้อง",
         text: "กรุณากรอกรหัสพนักงาน 5 หลักเท่านั้น",
@@ -84,10 +102,10 @@ export default function SignUpForm() {
         confirmButtonText: "ตกลง",
       })
       return
-    } else if (!formData.first_name && formData.last_name) {
+    } else if (!formData.password && formData) {
       Swal.fire({
         title: "กรุณากรอกข้อมูลให้ครบถ้วน",
-        text: "กรุณากรอกขื่อและนามสกุล",
+        text: "กรุณากรอกรหัสผ่าน",
         icon: "error",
         confirmButtonColor: "#d33",
         confirmButtonText: "ตกลง",
@@ -102,7 +120,8 @@ export default function SignUpForm() {
         confirmButtonText: "ตกลง",
       })
       return
-    } else if (!formData.department && formData) {
+    }
+    else if (!formData.department && formData) {
       Swal.fire({
         title: "กรุณากรอกข้อมูลให้ครบถ้วน",
         text: "กรุณากรอกแผนกของพนักงาน",
@@ -123,18 +142,29 @@ export default function SignUpForm() {
       console.log("Success:", response.data)
       if (response.data && response.data.newUser) {
         // If newUser exists, show success message
-        Swal.fire({
-          title: "สมัครสมาชิกสำเร็จ!",
-          text: "คุณสามารถเข้าสู่ระบบได้ทันที",
-          icon: "success",
-          confirmButtonColor: "#009A3E",
-          confirmButtonText: "ตกลง",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            // If OK is clicked, navigate to /signin
-            navigate('/signin')
-          }
-        })
+        if (userRole) {
+          Swal.fire({
+            title: "เพิ่มพนักงานสำเร็จ!",
+            text: "คุณได้ทำการเพิ่มพนักงานเรียบร้อยแล้ว",
+            icon: "success",
+            confirmButtonColor: "#009A3E",
+            confirmButtonText: "ตกลง",
+          })
+        } else {
+          Swal.fire({
+            title: "สมัครสมาชิกสำเร็จ!",
+            text: "คุณสามารถเข้าสู่ระบบได้ทันที",
+            icon: "success",
+            confirmButtonColor: "#009A3E",
+            confirmButtonText: "ตกลง",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              // If OK is clicked, navigate to /signin
+              navigate('/signin')
+            }
+          })
+        }
+
       }
 
     } catch (error) {
@@ -252,6 +282,15 @@ export default function SignUpForm() {
                         id="user_id"
                         name="user_id"
                         onChange={handleChange}
+                        onKeyDown={(e) => {
+                          // อนุญาตแค่ตัวเลข, Backspace, Tab, Arrow
+                          if (
+                            !/^[0-9]$/.test(e.key) &&
+                            !["Backspace", "Tab", "ArrowLeft", "ArrowRight", "Delete"].includes(e.key)
+                          ) {
+                            e.preventDefault()
+                          }
+                        }}
                         placeholder="กรุณาระบุรหัสพนักงาน"
                       />
                     </div>
@@ -353,9 +392,12 @@ export default function SignUpForm() {
                 >
                   {isLoading ? (
                     <span className="loading loading-dots loading-sm mr-2"></span>
+                  ) : userRole === 'admin' ? (
+                    'เพิ่มสมาชิก'
                   ) : (
                     'สมัครสมาชิก'
-                  )}
+                  )
+                  }
 
                 </button>
               </div>

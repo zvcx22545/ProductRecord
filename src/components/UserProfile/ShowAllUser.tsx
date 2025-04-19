@@ -81,6 +81,7 @@ const ShowAllUser = () => {
 
             // If confirmed, proceed with the deletion
             if (result.isConfirmed) {
+                setIsLoading(true)
                 const response = await axios.delete(`https://product-record-backend.vercel.app/api/authen/deleteUser/${userID}`);
 
                 if (response.data.status === 'success') {
@@ -98,6 +99,8 @@ const ShowAllUser = () => {
         } catch (error) {
             console.error('Error deleting employee:', error);
             Swal.fire('Error', 'เกิดข้อผิดพลาดในการลบข้อมูลพนักงาน', 'error');
+        } finally {
+            setIsLoading(false)
         }
     }
 
