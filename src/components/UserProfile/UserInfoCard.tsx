@@ -93,7 +93,7 @@ export default function UserInfoCard({ userProfile }: Props) {
       }
 
       const { data } = await axios.post(
-        `http://localhost:8000/api/authen/updateUser`,
+        `https://product-record-backend.vercel.app/api/authen/updateUser`,
         formDataToSend,
         {
           headers: {

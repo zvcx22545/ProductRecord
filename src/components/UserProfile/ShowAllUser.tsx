@@ -46,7 +46,7 @@ const ShowAllUser = () => {
 
             try {
                 setIsLoading(true)
-                const { data } = await axios.get('http://localhost:8000/api/authen/getAllUsers')
+                const { data } = await axios.get('https://product-record-backend.vercel.app/api/authen/getAllUsers')
                 if (!data.status === true) return
                 setUser(data.rows)
                 setCountUser(data.rows.length)
@@ -81,12 +81,12 @@ const ShowAllUser = () => {
 
             // If confirmed, proceed with the deletion
             if (result.isConfirmed) {
-                const response = await axios.delete(`http://localhost:8000/api/authen/deleteUser/${userID}`);
+                const response = await axios.delete(`https://product-record-backend.vercel.app/api/authen/deleteUser/${userID}`);
 
                 if (response.data.status === 'success') {
                     Swal.fire('สำเร็จ', 'ทำการลบข้อมูลพนักงานสำเร็จ', 'success');
 
-                    const { data } = await axios.get(`http://localhost:8000/api/authen/getAllUsers`)
+                    const { data } = await axios.get(`https://product-record-backend.vercel.app/api/authen/getAllUsers`)
                     setUser(data.rows);
                     setCountUser(data.rows.length)
                 } else {

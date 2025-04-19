@@ -135,7 +135,7 @@ useEffect(() => {
                         ? targetProduct.value
                         : [targetProduct.value];
 
-                    const { data } = await axios.get(`http://localhost:8000/api/product/getProducts`, {
+                    const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts`, {
                         params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                     });
 
@@ -173,7 +173,7 @@ useEffect(() => {
 
             // If confirmed, proceed with the deletion
             if (result.isConfirmed) {
-                const response = await axios.delete(`http://localhost:8000/api/product/deleteProduct/${productId}`);
+                const response = await axios.delete(`https://product-record-backend.vercel.app/api/product/deleteProduct/${productId}`);
 
                 if (response.data.status === 'success') {
                     Swal.fire('สำเร็จ', 'ทำการลบสินทรัพเสร็จสิ้น', 'success');
@@ -189,7 +189,7 @@ useEffect(() => {
                             ? targetProduct.value
                             : [targetProduct.value];
 
-                        const { data } = await axios.get(`http://localhost:8000/api/product/getProducts`, {
+                        const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts`, {
                             params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                         });
                         setProducts(data.product);
@@ -336,7 +336,7 @@ useEffect(() => {
                     console.log('No file selected.');
                 }
 
-                const response = await axios.post('http://localhost:8000/api/product/createProduct', formData, {
+                const response = await axios.post('https://product-record-backend.vercel.app/api/product/createProduct', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -356,7 +356,7 @@ useEffect(() => {
                             ? targetProduct.value
                             : [targetProduct.value];
 
-                        const { data } = await axios.get(`http://localhost:8000/api/product/getProducts`, {
+                        const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts`, {
                             params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                         });
                         setProducts(data.product);
@@ -427,7 +427,7 @@ useEffect(() => {
 
             }
             // ส่งข้อมูลที่แก้ไขไปยัง API
-            const response = await axios.post('http://localhost:8000/api/product/update-Product', { products: upd });
+            const response = await axios.post('https://product-record-backend.vercel.app/api/product/update-Product', { products: upd });
 
             if (response.data.status === 'success') {
                 Swal.fire('สำเร็จ', 'อัพเดทข้อมูลเรียบร้อยแล้ว', 'success');
@@ -443,7 +443,7 @@ useEffect(() => {
                         ? targetProduct.value
                         : [targetProduct.value];
 
-                    const { data } = await axios.get(`http://localhost:8000/api/product/getProducts`, {
+                    const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts`, {
                         params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                     });
                     setProducts(data.product);
