@@ -14,6 +14,8 @@ interface formData {
 }
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setLoading] = useState(false);
+
   // const [isChecked, setIsChecked] = useState(false);
   const [formData, setFormData] = useState<formData>({
     user_id: '',
@@ -33,8 +35,8 @@ export default function SignInForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-
-      const response = await axios.post("https://product-record-backend.vercel.app/api/authen/login", formData);
+      setLoading(true)
+      const response = await axios.post("http://localhost:8000/api/authen/login", formData);
       if (response.data && response.data.status === true && response.data.token) {
 
         sessionStorage.setItem("token", response.data.token);
@@ -76,6 +78,8 @@ export default function SignInForm() {
           confirmButtonText: "ตกลง",
         });
       }
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -154,9 +158,15 @@ export default function SignInForm() {
                 <div>
                   <button
                     type='submit'
+                    disabled={isLoading}
                     className="text-center mb-4 max-sm:w-[90%] max-lg:w-[50%] min-lg:w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-[#009A3E] shadow-theme-xs hover:bg-[#7FBA20]"
                   >
-                    เข้าสู่ระบบ
+                    {isLoading ? (
+                      <span className="loading loading-dots loading-sm mr-2"></span>
+                    ) : (
+                      'เข้าสู่ระบบ'
+                    )}
+
                   </button>
                 </div>
               </div>

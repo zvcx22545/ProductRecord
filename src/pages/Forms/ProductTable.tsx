@@ -51,6 +51,7 @@ interface ProductTableProps {
     handleDelete: (id: number) => void;
     handleSaveAllChanges: () => void;
     countProduct: number;
+    searchTerm: string;
 }
 
 const ProductTable: React.FC<ProductTableProps> = ({
@@ -65,7 +66,8 @@ const ProductTable: React.FC<ProductTableProps> = ({
     setUpd,
     handleDelete,
     handleSaveAllChanges,
-    countProduct
+    countProduct,
+    searchTerm
 }) => {
     // Calculate pagination values
     const [zoomImage, setZoomImage] = useState<string | null>(null);
@@ -376,7 +378,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={11} className="px-4 py-8 text-center text-gray-500 text-theme-sm dark:text-gray-400">
-                                        ไม่พบข้อมูลที่ค้นหา
+                                    {searchTerm ? 'ไม่พบข้อมูลที่ค้นหา' : 'ไม่มีข้อมูลสินทรัพย์ในระบบ'}
                                     </TableCell>
                                 </TableRow>
                             )}

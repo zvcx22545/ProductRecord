@@ -28,6 +28,7 @@ import HomePageForm from "./pages/Forms/HomePageForm";
 import { ProtectedRoute } from "./components/common/Protect";
 import Electrical from "./pages/Forms/Electrical";
 import LoginSearch from "./pages/search/LoginSearch";
+import ShowAllUser from "./components/UserProfile/ShowAllUser";
 
 export default function App() {
   return (
@@ -48,6 +49,7 @@ export default function App() {
 
               {/* Others Page */}
               <Route path="/profile" element={<UserProfiles />} />
+              <Route path="/users" element={<ShowAllUser />} />
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/blank" element={<Blank />} />
 

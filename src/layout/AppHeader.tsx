@@ -60,7 +60,7 @@ const AppHeader: React.FC = () => {
     (async () => {
       try{
         // console.log('user_id is', user_id)
-        const {data} = await axios.get(`https://product-record-backend.vercel.app/api/authen/getUserByid/${user_id}`)
+        const {data} = await axios.get(`http://localhost:8000/api/authen/getUserByid/${user_id}`)
         if (data.status === true) {
           console.log("set data -------*", data.row)
         setUserProfile(data.row)

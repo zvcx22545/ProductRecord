@@ -6,6 +6,7 @@ import Input from "../form/input/InputField"
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import { useNavigate } from 'react-router-dom'
+import './style.css'
 // import Checkbox from "../form/input/Checkbox";
 
 interface FormData {
@@ -29,7 +30,7 @@ export default function SignUpForm() {
   const [showCFPassword, setShowCFPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("")
   const [userRole, setuserRole] = useState<string | null>(null)
-
+  const [isLoading, setLoading] = useState(false);
 
   const [formData, setFormdata] = useState<FormData>({
     user_id: 0,
@@ -112,12 +113,13 @@ export default function SignUpForm() {
       return
     }
     try {
+      setLoading(true)
       const userData = {
         ...formData,
         profile_image: profile// ใช้รูปโปรไฟล์เริ่มต้นถ้าไม่มีอัปโหลด
       }
 
-      const response = await axios.post("https://product-record-backend.vercel.app/api/authen/register", userData)
+      const response = await axios.post("http://localhost:8000/api/authen/register", userData)
       console.log("Success:", response.data)
       if (response.data && response.data.newUser) {
         // If newUser exists, show success message
@@ -156,6 +158,8 @@ export default function SignUpForm() {
           confirmButtonText: "ตกลง",
         })
       }
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -327,7 +331,7 @@ export default function SignUpForm() {
                       />
                     </div>
 
-                    <fieldset className={`fieldset ${userRole === 'admin' ? '' : 'hidden' }`}>
+                    <fieldset className={`fieldset ${userRole === 'admin' ? '' : 'hidden'}`}>
                       <Label>
                         ระดับผู้ใช้งาน<span className="text-error-500">*</span>
                       </Label>
@@ -344,8 +348,15 @@ export default function SignUpForm() {
 
                 {/* <!-- Button --> */}
 
-                <button className="flex items-center justify-center mb-4 max-sm:w-[90%] max-lg:w-[50%] min-lg:w-[20%]  mx-auto px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-[#009A3E] shadow-theme-xs hover:bg-[#7FBA20]">
-                  สมัครสมาชิก
+                <button className="flex items-center justify-center mb-4 max-sm:w-[90%] max-lg:w-[50%] min-lg:w-[20%]  mx-auto px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-[#009A3E] shadow-theme-xs hover:bg-[#7FBA20]"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <span className="loading loading-dots loading-sm mr-2"></span>
+                  ) : (
+                    'สมัครสมาชิก'
+                  )}
+
                 </button>
               </div>
             </form>

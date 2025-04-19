@@ -146,7 +146,7 @@ const LoginSearch = () => {
             setIsLoading(true);
 
             try {
-                const { data } = await axios.post('https://product-record-backend.vercel.app/api/product/getSuggestions', {
+                const { data } = await axios.post('http://localhost:8000/api/product/getSuggestions', {
                     query: searchTerm
                 });
 
@@ -188,7 +188,7 @@ const LoginSearch = () => {
 
             // If confirmed, proceed with the deletion
             if (result.isConfirmed) {
-                const response = await axios.delete(`https://product-record-backend.vercel.app/api/product/deleteProduct/${productId}`);
+                const response = await axios.delete(`http://localhost:8000/api/product/deleteProduct/${productId}`);
 
                 if (response.data.status === 'success') {
                     Swal.fire('สำเร็จ', 'ทำการลบสินทรัพเสร็จสิ้น', 'success');
@@ -252,7 +252,7 @@ const LoginSearch = () => {
             }
 
             // ส่งข้อมูลที่แก้ไขไปยัง API
-            const response = await axios.post('https://product-record-backend.vercel.app/api/product/update-Product', { products: upd });
+            const response = await axios.post('http://localhost:8000/api/product/update-Product', { products: upd });
 
             if (response.data.status === 'success') {
                 Swal.fire('สำเร็จ', 'อัพเดทข้อมูลเรียบร้อยแล้ว', 'success');
@@ -290,7 +290,7 @@ const LoginSearch = () => {
      const handleSearchProductById = async (id: string = searchTerm) => {
             try {
                 isManualSearch.current = true; // <- ตั้งตรงนี้ก่อนยิง API
-                const { data } = await axios.post('https://product-record-backend.vercel.app/api/product/getProduct_BySearch', {
+                const { data } = await axios.post('http://localhost:8000/api/product/getProduct_BySearch', {
                     query: id.trim()
                 });
     

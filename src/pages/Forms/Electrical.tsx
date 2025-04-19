@@ -133,7 +133,7 @@ const Electrical = () => {
                         ? targetProduct.value
                         : [targetProduct.value];
 
-                    const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts`, {
+                    const { data } = await axios.get(`http://localhost:8000/api/product/getProducts`, {
                         params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                     });
 
@@ -147,13 +147,13 @@ const Electrical = () => {
         })();
     }, []);
 
-    useEffect(() => {
-        console.log("Updated Products:", Products)
-    }, [Products]);
+    // useEffect(() => {
+    //     console.log("Updated Products:", Products)
+    // }, [Products]);
 
-    useEffect(() => {
-        console.log("Updated upd array:", upd)
-    }, [upd]);
+    // useEffect(() => {
+    //     console.log("Updated upd array:", upd)
+    // }, [upd]);
 
     const handleDelete = async (productId: number) => {
         try {
@@ -169,7 +169,7 @@ const Electrical = () => {
 
             // If confirmed, proceed with the deletion
             if (result.isConfirmed) {
-                const response = await axios.delete(`https://product-record-backend.vercel.app/api/product/deleteProduct/${productId}`);
+                const response = await axios.delete(`http://localhost:8000/api/product/deleteProduct/${productId}`);
 
                 if (response.data.status === 'success') {
                     Swal.fire('สำเร็จ', 'ทำการลบสินทรัพเสร็จสิ้น', 'success');
@@ -185,7 +185,7 @@ const Electrical = () => {
                             ? targetProduct.value
                             : [targetProduct.value];
 
-                        const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts`, {
+                        const { data } = await axios.get(`http://localhost:8000/api/product/getProducts`, {
                             params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                         });
                         setProducts(data.product);
@@ -245,18 +245,21 @@ const Electrical = () => {
 
     // ตรวจสอบข้อมูลก่อน submit
     const validateForm = () => {
+
         const errors: string[] = [];
-    
+        if (!productId.trim()) errors.push("กรุณาระบุเลขสินทรัพย์");
         if (!productName.trim()) errors.push("กรุณาระบุชื่อสินทรัพย์");
         // if (!employeeName.trim()) errors.push("กรุณาระบุชื่อผู้ใช้สินทรัพย์");
         // if (!employeeID.trim()) errors.push("กรุณาระบุรหัสพนักงานผู้ใช้สินทรัพย์");
-        if (!productId.trim()) errors.push("กรุณาระบุเลขสินทรัพย์");
         if (!productPrice.trim()) errors.push("กรุณาระบุราคาสินทรัพย์");
         if (!product_number) errors.push("กรุณาระบุจำนวนสินทรัพย์");
         // if (!productDepartment.trim()) errors.push("กรุณาระบุแผนกที่ใช้งาน");
         if (!productTypeValue) errors.push("กรุณาเลือกประเภทสินทรัพย์");
-        if (!calendar) errors.push("กรุณาเลือกวันที่");
-    
+
+        if (!calendar) errors.push("กรุณาเลือกวันที่จัดซื้อ");
+        if (!selectedFile) errors.push("กรุณาเพิ่มรูปภาพ");
+        
+
         if (errors.length > 0) {
             Swal.fire({
                 icon: 'error',
@@ -265,7 +268,7 @@ const Electrical = () => {
             });
             return false;
         }
-    
+
         return true;
     };
     
@@ -275,38 +278,37 @@ const Electrical = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (productId && productId.length >= 2) {
-            const idPrefix = productId.substring(0, 2).toUpperCase().replace(/[^A-Z]/g, '');
-            let correctTypeLabel = '';
-            let matchedTypeCode = '';
-
-            for (const type of productType) {
-                const values = Array.isArray(type.value) ? type.value : [type.value];
-                correctTypeLabel = type.label;
-
-                if (values.includes(idPrefix)) {
-                    matchedTypeCode = Array.isArray(type.value) ? type.value.join(',') : type.value;
-                    setProductTypeValue(matchedTypeCode); // สำหรับแสดงใน dropdown
-                    setSendProductTypeValue(idPrefix); // สำหรับส่งไป backend
-                    break;
-                }
-            }
-
-            // productTypeValue คือสิ่งที่ผู้ใช้เลือกจาก dropdown
-            const selectedType = productType.find((type) => {
-                const val = Array.isArray(type.value) ? type.value.join(',') : type.value;
-                return val === productTypeValue;
-            });
-            
-            const values = selectedType ? (Array.isArray(selectedType.value) ? selectedType.value : [selectedType.value]) : [];
-            if (!values.includes(idPrefix)) {
-                return Swal.fire('แจ้งเตือน', `กรุณาเลือกประเภท ( ${correctTypeLabel} )`, 'error');
-            }
-
-        }
-
-        if (validateForm()) {
+             if (validateForm()) {
             try {
+                if (productId && productId.length >= 2) {
+                    const idPrefix = productId.substring(0, 2).toUpperCase().replace(/[^A-Z]/g, '');
+                    let correctTypeLabel = '';
+                    let matchedTypeCode = '';
+
+                    for (const type of productType) {
+                        const values = Array.isArray(type.value) ? type.value : [type.value];
+                        correctTypeLabel = type.label;
+
+                        if (values.includes(idPrefix)) {
+                            matchedTypeCode = Array.isArray(type.value) ? type.value.join(',') : type.value;
+                            setProductTypeValue(matchedTypeCode); // สำหรับแสดงใน dropdown
+                            setSendProductTypeValue(idPrefix); // สำหรับส่งไป backend
+                            break;
+                        }
+                    }
+
+                    // productTypeValue คือสิ่งที่ผู้ใช้เลือกจาก dropdown
+                    const selectedType = productType.find((type) => {
+                        const val = Array.isArray(type.value) ? type.value.join(',') : type.value;
+                        return val === productTypeValue;
+                    });
+
+                    const values = selectedType ? (Array.isArray(selectedType.value) ? selectedType.value : [selectedType.value]) : [];
+                    if (!values.includes(idPrefix)) {
+                        return Swal.fire('แจ้งเตือน', `กรุณาเลือกประเภท ( ${correctTypeLabel} )`, 'error');
+                    }
+
+                }
                 setLoading(true)
                 const formData = new FormData();
                 const user_id = sessionStorage.getItem('user_id') || '';
@@ -331,7 +333,7 @@ const Electrical = () => {
                     console.log('No file selected.');
                 }
 
-                const response = await axios.post('https://product-record-backend.vercel.app/api/product/createProduct', formData, {
+                const response = await axios.post('http://localhost:8000/api/product/createProduct', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -351,7 +353,7 @@ const Electrical = () => {
                             ? targetProduct.value
                             : [targetProduct.value];
 
-                        const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts`, {
+                        const { data } = await axios.get(`http://localhost:8000/api/product/getProducts`, {
                             params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                         });
                         setProducts(data.product);
@@ -422,7 +424,7 @@ const Electrical = () => {
 
             }
             // ส่งข้อมูลที่แก้ไขไปยัง API
-            const response = await axios.post('https://product-record-backend.vercel.app/api/product/update-Product', { products: upd });
+            const response = await axios.post('http://localhost:8000/api/product/update-Product', { products: upd });
 
             if (response.data.status === 'success') {
                 Swal.fire('สำเร็จ', 'อัพเดทข้อมูลเรียบร้อยแล้ว', 'success');
@@ -438,7 +440,7 @@ const Electrical = () => {
                         ? targetProduct.value
                         : [targetProduct.value];
 
-                    const { data } = await axios.get(`https://product-record-backend.vercel.app/api/product/getProducts`, {
+                    const { data } = await axios.get(`http://localhost:8000/api/product/getProducts`, {
                         params: { productType: typeValues.join(',') } // ส่งเป็น query string เช่น ZZ,SV
                     });
                     setProducts(data.product);
@@ -560,6 +562,7 @@ const Electrical = () => {
                     )}
                 {/* Table */}
                 <ProductTable
+                    searchTerm={searchTerm}
                     products={filteredProducts}
                     currentPage={currentPage}
                     setCurrentPage={setCurrentPage}
@@ -741,7 +744,7 @@ const Electrical = () => {
                                 </div>
                                 <div className="text-center">
                                     <input type="file" className="hidden" onChange={handleFileChange} accept="image/*" />
-                                    <div className="min-lg:text-lg">Upload file</div>
+                                    <div className="min-lg:text-lg">เพิ่มรูปภาพ</div>
                                 </div>
                             </Label>
 

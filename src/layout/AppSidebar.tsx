@@ -38,8 +38,13 @@ const navItems: NavItem[] = [
   // },
   {
     icon: <UserCircleIcon />,
-    name: "ข้อมูลพนักงาน",
+    name: "โปรไฟล์พนักงาน",
     path: "/profile",
+  },
+  {
+    icon: <UserCircleIcon />,
+    name: "ข้อมูลพนักงาน",
+    path: "/users",
   },
   {
     name: "สินทรัพย์",
