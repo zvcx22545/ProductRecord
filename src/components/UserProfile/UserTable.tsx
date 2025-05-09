@@ -30,7 +30,7 @@ interface UserTableProps {
     setCurrentPage: (page: number) => void;
     rowsPerPage: number;
     roleUser: string;
-    handleDelete: (id: number) => void;
+    handleDelete: (id: number, user_id: string) => void;
     countUser: number;
     searchTerm: string;
     isLoading: boolean;
@@ -164,7 +164,7 @@ const UserTable: React.FC<UserTableProps> = ({
                                                 <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                                     <Delete
                                                         className="cursor-pointer hover:text-red-600"
-                                                        onClick={() => handleDelete(user.id)}
+                                                        onClick={() => handleDelete(user.id, user.user_id)}
                                                     />
                                                 </TableCell>
                                             )}

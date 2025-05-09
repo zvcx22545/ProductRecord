@@ -33,6 +33,7 @@ const ShowAllUser = () => {
     const [countUser, setCountUser] = useState<number>(0);
     const [filteredUser, setFilteredUser] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [userId, setUserId] = useState<string>('')
 
 
 
@@ -61,13 +62,15 @@ const ShowAllUser = () => {
 
     useEffect(() => {
         const role = sessionStorage.getItem('role') || ''
+        const getUserId = sessionStorage.getItem('user_id') || ''
         setRoleUser(role)
+        setUserId(getUserId)
         // console.log("Updated users:", users)
         // console.log("Updated countUser:", countUser)
 
     }, [users, countUser]);
 
-    const handleDelete = async (userID: number) => {
+    const handleDelete = async (userID: number, user_id: string) => {
         try {
             // Ask for confirmation before deleting
             const result = await Swal.fire({
@@ -81,6 +84,11 @@ const ShowAllUser = () => {
 
             // If confirmed, proceed with the deletion
             if (result.isConfirmed) {
+                if (userId === user_id) {
+                    Swal.fire('แจ้งเตือน', 'ผู้ใช้ไม่สามารถลบไอดีตัวเองได้', 'warning')
+                    return
+                }
+
                 setIsLoading(true)
                 const response = await axios.delete(`https://product-record-backend.vercel.app/api/authen/deleteUser/${userID}`);
 
